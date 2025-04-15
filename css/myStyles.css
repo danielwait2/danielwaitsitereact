@@ -1,0 +1,40 @@
+p{
+    color:  rgb(28, 14, 14);
+}
+
+.footer{
+    position: fixed; 
+    bottom: 0;
+    width: 100%;
+    background-color:darkgrey; 
+    color: #fff; 
+    text-align: center; 
+    padding: 10px;
+}
+
+ul{
+    text-align: left;
+}
+ol{
+   text-align: left;
+   display: inline-block;
+   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.small {
+    margin-right: 20px;
+    text-align: center;
+}
+
+.header{
+    position: fixed; 
+    top: 0;
+    width: 100%;
+    color: white;
+    background-color: black;
+    line-height: 50px;
+}
+
+
+
+
