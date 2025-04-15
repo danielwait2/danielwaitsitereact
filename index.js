@@ -24,6 +24,6 @@ export default {
 };
 
 async function renderPage(view) {
-  const response = await fetch(`https://danielwait-pages.pages.dev/${view}.html`);
+  const response = await fetch(`https://danielwaitsite.pages.dev/${view}.html`);
   return await response.text();
 }
