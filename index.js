@@ -1,54 +1,29 @@
-// Daniel Wait Website
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const path = url.pathname;
 
-// brings in the library
-let express = require("express");
+    const routes = {
+      "/": "index",
+      "/consulting": "consulting",
+      "/contact": "contact",
+      "/projects": "projects",
+      "/resume": "resume"
+    };
 
-// makes an express object
-let app = express();
+    const page = routes[path];
 
-// brings in the library
-let path = require("path");
+    if (page) {
+      return new Response(await renderPage(page), {
+        headers: { "Content-Type": "text/html;charset=UTF-8" },
+      });
+    }
 
-// sets the port variable to 4000
-const port = process.env.PORT || 4000;
+    return new Response("404 Not Found", { status: 404 });
+  },
+};
 
-// sets the view engine is ejs
-app.set("view engine", "ejs");
-
-// tells where the views is the directory for the ejs files
-app.set("views", path.join(__dirname, "views"));
-
-// lets you access the body of the request
-// get  is req.query.name    req.perams.name
-// post is req.body.name
-app.use(express.urlencoded({extended: true}));
-
-app.get('/', (req, res) => {
-    res.render('index');
-});
-
-app.get('/consulting', (req, res) => {
-    res.render('consulting');
-});
-
-
-app.get('/contact', (req, res) => {
-    res.render('contact');
-});
-
-
-app.get('/projects', (req, res) => {
-    res.render('projects');
-});
-
-
-app.get('/resume', (req, res) => {
-    res.render('resume');
-});
-
-
-
-
-
-// ALWAYS AT THE BOTTOM
-app.listen(port, () => console.log('Listening on port ', {port}));
+async function renderPage(view) {
+  const html = await fetch(`https://danielwaitwebsite.pages.dev/views/${view}.html`).then(res => res.text());
+  return html;
+}
