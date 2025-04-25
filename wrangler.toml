@@ -1,3 +1,15 @@
-name = "danielwaitwebsite"
-main = "index.js"
-compatibility_date = "2024-04-15"
+# -----------------------------------------------------------------------------
+# Core Worker settings
+# -----------------------------------------------------------------------------
+name = "danielwaitsite"
+type = "javascript"
+account_id = "9b31e0273bd94a2026dadba26d328a2b"  # ← your ID goes here
+workers_dev = true
+route = ""  # or "danielwait.com/*" if you only want to serve your custom domain
+
+# -----------------------------------------------------------------------------
+# Static Site settings (Workers Sites)
+# -----------------------------------------------------------------------------
+[site]
+bucket = "./public"
+entry-point = "workers-site"
