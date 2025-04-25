@@ -1,3 +1,7 @@
-name = "danielwaitwebsite"
-main = "index.js"
-compatibility_date = "2024-04-15"
+name            = "danielwaitsite"
+account_id      = "9b31e0273bd94a2026dadba26d328a2b"
+compatibility_date = "2025-04-24"
+workers_dev     = true
+
+# static‐only
+assets = { directory = "./public" }
