@@ -1,4 +1,4 @@
-name            = "danielwaitsite"
+name = "danielwaitwebsite"
 account_id      = "9b31e0273bd94a2026dadba26d328a2b"
 compatibility_date = "2025-04-24"
 workers_dev     = true
