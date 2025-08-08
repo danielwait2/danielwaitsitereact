@@ -122,7 +122,7 @@ async function handleAPI(request, env, path) {
       // Update link
       const id = parseInt(path.split('/').pop());
       const body = await request.json();
-      const { title, url, description, password } = body;
+      const { title, url, description } = body;
 
       // Validate required fields
       if (!title || !url) {
@@ -132,12 +132,7 @@ async function handleAPI(request, env, path) {
         });
       }
 
-      if (password !== 'daniel2025') {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
+      // No password check needed since admin page is already protected by login
 
       try {
         const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
