@@ -59,6 +59,24 @@ async function handleAPI(request, env, path) {
       }
     }
 
+    console.log('Checking POST /api/login, path:', path, 'method:', request.method);
+    if (path === '/api/login' && request.method === 'POST') {
+      // Validate admin login
+      const body = await request.json();
+      const { password } = body;
+
+      if (password === 'daniel2025') {
+        return new Response(JSON.stringify({ success: true, message: 'Login successful' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } else {
+        return new Response(JSON.stringify({ error: 'Invalid password' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     console.log('Checking POST /api/links, path:', path, 'method:', request.method);
     if (path === '/api/links' && request.method === 'POST') {
       // Add new link

@@ -230,8 +230,15 @@
       <!-- Admin Header -->
       <div class="admin-container">
         <div class="admin-header">
-          <h1 class="admin-title">Admin Panel</h1>
-          <p class="admin-subtitle">Wait List Management - Full CRUD Operations</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1 class="admin-title">Admin Panel</h1>
+              <p class="admin-subtitle">Wait List Management - Full CRUD Operations</p>
+            </div>
+            <button onclick="logout()" class="btn btn-outline-danger">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+          </div>
         </div>
         
         <!-- Stats Cards -->
@@ -314,6 +321,8 @@
           <div class="col-auto">
             <a class="small" href="wait-list.html">View Wait List</a>
             <span class="mx-1">&middot;</span>
+            <a class="small" href="admin-login.html">Login</a>
+            <span class="mx-1">&middot;</span>
             <a class="small" href="index.html">Home</a>
           </div>
         </div>
@@ -328,8 +337,31 @@
     
     <!-- Admin Panel JS -->
     <script>
-      // Admin password (you can change this)
-      const ADMIN_PASSWORD = 'daniel2025';
+      // Check authentication on page load
+      function checkAuthentication() {
+        const adminCookie = getCookie('admin_authenticated');
+        if (adminCookie !== 'true') {
+          // Not authenticated, redirect to login
+          window.location.href = 'admin-login.html';
+          return;
+        }
+      }
+      
+      // Get cookie value
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+      }
+      
+      // Clear admin cookie (logout)
+      function logout() {
+        document.cookie = 'admin_authenticated=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+        window.location.href = 'admin-login.html';
+      }
+      
+      // No password stored client-side - all validation happens server-side
       
       // Initialize links array
       let links = [];
@@ -476,8 +508,7 @@
       // Delete link
       async function deleteLink(id) {
         const password = prompt('Enter admin password to delete:');
-        if (password !== ADMIN_PASSWORD) {
-          alert('Incorrect password!');
+        if (!password) {
           return;
         }
         
@@ -496,7 +527,11 @@
               alert('Link deleted successfully!');
             } else {
               const error = await response.json();
-              alert('Error: ' + error.error);
+              if (response.status === 401) {
+                alert('Incorrect password!');
+              } else {
+                alert('Error: ' + error.error);
+              }
             }
           } catch (error) {
             alert('Error deleting link: ' + error.message);
@@ -505,7 +540,10 @@
       }
       
       // Load links on page load
-      document.addEventListener('DOMContentLoaded', loadLinks);
+      document.addEventListener('DOMContentLoaded', () => {
+        checkAuthentication();
+        loadLinks();
+      });
     </script>
   </body>
 </html>
