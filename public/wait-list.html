@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="Wait List - Curated collection by Daniel Wait" />
+    <meta name="author" content="Daniel Wait" />
+    <title>Wait List - Daniel Wait</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/logo.png" />
+    <!-- Custom Google font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+    />
+    <!-- Core theme CSS (includes Bootstrap) -->
+    <link href="css/styles.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="css/myStyles.css" />
+    <script src="js/nav-component.js"></script>
+    <style>
+      .wait-list-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      
+      .wait-list-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #000;
+        padding-bottom: 20px;
+      }
+      
+      .wait-list-title {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #000;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      
+      .wait-list-subtitle {
+        font-size: 1.2rem;
+        color: #666;
+        margin-top: 10px;
+      }
+      
+      .links-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+      }
+      
+      .link-item {
+        border: 1px solid #ddd;
+        padding: 15px;
+        background: #fff;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+      
+      .link-item:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+      }
+      
+      .link-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #000;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 8px;
+        line-height: 1.3;
+      }
+      
+      .link-title:hover {
+        color: #007bff;
+      }
+      
+      .link-description {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      
+      .link-date {
+        color: #999;
+        font-size: 0.8rem;
+        font-style: italic;
+      }
+      
+      .admin-panel {
+        background: #f8f9fa;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        display: none;
+      }
+      
+      .admin-panel h3 {
+        color: #007bff;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .form-group label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      
+      .btn-admin {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      
+      .btn-admin:hover {
+        background: #0056b3;
+      }
+      
+      .toggle-admin {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+      }
+      
+      .toggle-admin:hover {
+        background: #545b62;
+      }
+      
+      .delete-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .link-item:hover .delete-btn {
+        opacity: 1;
+      }
+      
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+      
+      .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: #ddd;
+      }
+      
+      .empty-state h4 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+      
+      @media (max-width: 768px) {
+        .wait-list-title {
+          font-size: 2rem;
+        }
+        
+        .links-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="d-flex flex-column h-100">
+    <main class="flex-shrink-0">
+      <!-- Navigation-->
+      <div id="nav-container"></div>
+      
+      <!-- Wait List Header -->
+      <div class="wait-list-container">
+        <div class="wait-list-header">
+          <h1 class="wait-list-title">Wait List</h1>
+          <p class="wait-list-subtitle">Curated collection of interesting links and resources</p>
+        </div>
+        
+        <!-- Admin Toggle Button -->
+        <button id="toggle-admin" class="toggle-admin">
+          <i class="bi bi-gear"></i> Admin Panel
+        </button>
+        
+        <!-- Admin Panel -->
+        <div id="admin-panel" class="admin-panel">
+          <h3><i class="bi bi-gear"></i> Admin Panel</h3>
+          <form id="add-link-form">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="link-title">Title *</label>
+                  <input type="text" class="form-control" id="link-title" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="link-url">URL *</label>
+                  <input type="text" class="form-control" id="link-url" required placeholder="https://example.com or any URL">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="link-description">Description</label>
+                  <input type="text" class="form-control" id="link-description">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="admin-password">Admin Password *</label>
+                  <input type="password" class="form-control" id="admin-password" required>
+                </div>
+              </div>
+              <div class="col-md-6 d-flex align-items-end">
+                <button type="submit" class="btn btn-admin">
+                  <i class="bi bi-plus-circle"></i> Add Link
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Links Grid -->
+        <div id="links-container">
+          <div class="empty-state">
+            <i class="bi bi-link-45deg"></i>
+            <h4>No links yet</h4>
+            <p>Use the admin panel to add your first link to the wait list!</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer-->
+    <footer class="bg-white py-4 mt-auto">
+      <div class="container px-5">
+        <div
+          class="row align-items-center justify-content-between flex-column flex-sm-row"
+        >
+          <div class="col-auto">
+            <div class="small m-0">
+              Copyright &copy; Daniel Wait 2025 <br />
+              Version 1.0.0
+            </div>
+          </div>
+          <div class="col-auto">
+            <a class="small" href="#top">Back to Top</a>
+            <span class="mx-1">&middot;</span>
+            <a class="small" href="contact.html">Contact</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+    <script src="js/nav-component.js"></script>
+    
+    <!-- Wait List JS -->
+    <script>
+      // Admin password (you can change this)
+      const ADMIN_PASSWORD = 'daniel2025';
+      
+      // Initialize links array
+      let links = [];
+      
+      // DOM elements
+      const adminPanel = document.getElementById('admin-panel');
+      const toggleAdminBtn = document.getElementById('toggle-admin');
+      const addLinkForm = document.getElementById('add-link-form');
+      const linksContainer = document.getElementById('links-container');
+      
+      // Toggle admin panel
+      toggleAdminBtn.addEventListener('click', () => {
+        const isVisible = adminPanel.style.display === 'block';
+        adminPanel.style.display = isVisible ? 'none' : 'block';
+        toggleAdminBtn.innerHTML = isVisible ? 
+          '<i class="bi bi-gear"></i> Admin Panel' : 
+          '<i class="bi bi-x-circle"></i> Close Admin';
+      });
+      
+      // Add new link
+      addLinkForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const password = document.getElementById('admin-password').value;
+        if (password !== ADMIN_PASSWORD) {
+          alert('Incorrect admin password!');
+          return;
+        }
+        
+        const title = document.getElementById('link-title').value;
+        let url = document.getElementById('link-url').value.trim();
+        const description = document.getElementById('link-description').value;
+        
+        // Normalize URL - add https:// if no protocol is specified
+        if (url && !url.match(/^https?:\/\//)) {
+          url = 'https://' + url;
+        }
+        
+        // Log the URL for debugging
+        console.log('Submitting URL:', url);
+        
+        try {
+          const response = await fetch('/api/links', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title,
+              url,
+              description,
+              password
+            })
+          });
+          
+          if (response.ok) {
+            addLinkForm.reset();
+            loadLinks();
+            alert('Link added successfully!');
+          } else {
+            const error = await response.json();
+            console.log('Server error response:', error);
+            alert('Error: ' + error.error);
+          }
+        } catch (error) {
+          alert('Error adding link: ' + error.message);
+        }
+      });
+      
+      // Load links from API
+      async function loadLinks() {
+        try {
+          const response = await fetch('/api/links');
+          if (response.ok) {
+            links = await response.json();
+            displayLinks();
+          } else {
+            console.error('Failed to load links');
+          }
+        } catch (error) {
+          console.error('Error loading links:', error);
+        }
+      }
+      
+      // Display links
+      function displayLinks() {
+        if (links.length === 0) {
+          linksContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-link-45deg"></i>
+              <h4>No links yet</h4>
+              <p>Use the admin panel to add your first link to the wait list!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        linksContainer.innerHTML = `
+          <div class="links-grid">
+            ${links.map(link => `
+              <div class="link-item">
+                <button class="delete-btn" onclick="deleteLink(${link.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+                <a href="${link.url}" target="_blank" class="link-title">
+                  ${link.title}
+                </a>
+                ${link.description ? `<div class="link-description">${link.description}</div>` : ''}
+                <div class="link-date">Added: ${link.date}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      // Delete link
+      async function deleteLink(id) {
+        const password = prompt('Enter admin password to delete:');
+        if (password !== ADMIN_PASSWORD) {
+          alert('Incorrect password!');
+          return;
+        }
+        
+        if (confirm('Are you sure you want to delete this link?')) {
+          try {
+            const response = await fetch(`/api/links/${id}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ password })
+            });
+            
+            if (response.ok) {
+              loadLinks();
+              alert('Link deleted successfully!');
+            } else {
+              const error = await response.json();
+              alert('Error: ' + error.error);
+            }
+          } catch (error) {
+            alert('Error deleting link: ' + error.message);
+          }
+        }
+      }
+      
+      // Load links on page load
+      document.addEventListener('DOMContentLoaded', loadLinks);
+    </script>
+  </body>
+</html>

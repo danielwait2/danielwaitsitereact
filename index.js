@@ -1,29 +1,129 @@
+// Cloudflare Worker for Wait List API
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    const routes = {
-      "/": "index",
-      "/consulting": "consulting",
-      "/contact": "contact",
-      "/projects": "projects",
-      "/resume": "resume"
-    };
-
-    const page = routes[path];
-
-    if (page) {
-      return new Response(await renderPage(page), {
-        headers: { "Content-Type": "text/html;charset=UTF-8" },
-      });
+    // Handle API routes
+    if (path.startsWith('/api/')) {
+      return handleAPI(request, env, path);
     }
 
-    return new Response("404 Not Found", { status: 404 });
-  },
+    // Serve static files
+    return env.ASSETS.fetch(request);
+  }
 };
 
-async function renderPage(view) {
-  const response = await fetch(`https://danielwaitsite.pages.dev/${view}.html`);
-  return await response.text();
+async function handleAPI(request, env, path) {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
+  // Handle CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    if (path === '/api/links' && request.method === 'GET') {
+      // Get all links
+      try {
+        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+        return new Response(JSON.stringify(links), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (kvError) {
+        console.error('KV get error:', kvError);
+        return new Response(JSON.stringify([]), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    if (path === '/api/links' && request.method === 'POST') {
+      // Add new link
+      const body = await request.json();
+      const { title, url, description, password } = body;
+
+      // Validate required fields
+      if (!title || !url) {
+        return new Response(JSON.stringify({ error: 'Title and URL are required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      // Simple password check
+      if (password !== 'daniel2025') {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+        const newLink = {
+          id: Date.now(),
+          title: title.trim(),
+          url: url.trim(),
+          description: description ? description.trim() : '',
+          date: new Date().toISOString().split('T')[0]
+        };
+
+        links.unshift(newLink);
+        await env.WAIT_LIST_KV.put('links', JSON.stringify(links));
+
+        return new Response(JSON.stringify(newLink), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (kvError) {
+        console.error('KV operation error:', kvError);
+        return new Response(JSON.stringify({ error: 'Failed to save link' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    if (path.startsWith('/api/links/') && request.method === 'DELETE') {
+      // Delete link
+      const id = parseInt(path.split('/').pop());
+      const body = await request.json();
+      const { password } = body;
+
+      if (password !== 'daniel2025') {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+        const filteredLinks = links.filter(link => link.id !== id);
+        await env.WAIT_LIST_KV.put('links', JSON.stringify(filteredLinks));
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (kvError) {
+        console.error('KV delete error:', kvError);
+        return new Response(JSON.stringify({ error: 'Failed to delete link' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    return new Response('Not Found', { status: 404, headers: corsHeaders });
+  } catch (error) {
+    console.error('API error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
 }
