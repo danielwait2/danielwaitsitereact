@@ -238,45 +238,7 @@
           <p class="wait-list-subtitle">Curated collection of interesting links and resources</p>
         </div>
         
-        <!-- Admin Panel (Hidden by default) -->
-        <div id="admin-panel" class="admin-panel">
-          <h3><i class="bi bi-gear"></i> Admin Panel</h3>
-          <form id="add-link-form" novalidate>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="link-title">Title *</label>
-                  <input type="text" class="form-control" id="link-title" required>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="link-url">URL *</label>
-                  <input type="text" class="form-control" id="link-url" required placeholder="https://example.com or any URL">
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="link-description">Description</label>
-                  <input type="text" class="form-control" id="link-description">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="admin-password">Admin Password *</label>
-                  <input type="password" class="form-control" id="admin-password" required>
-                </div>
-              </div>
-              <div class="col-md-6 d-flex align-items-end">
-                <button type="submit" class="btn btn-admin">
-                  <i class="bi bi-plus-circle"></i> Add Link
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
+
         
         <!-- Links Grid -->
         <div id="links-container">
@@ -304,15 +266,12 @@
           <div class="col-auto">
             <a class="small" href="#top">Back to Top</a>
             <span class="mx-1">&middot;</span>
+            <a class="small" href="admin.html">Admin</a>
+            <span class="mx-1">&middot;</span>
             <a class="small" href="contact.html">Contact</a>
           </div>
         </div>
-        <!-- Hidden Admin Button -->
-        <div class="text-center mt-3">
-          <button id="toggle-admin" class="admin-button-hidden">
-            <i class="bi bi-gear"></i>
-          </button>
-        </div>
+
       </div>
     </footer>
 
@@ -324,80 +283,11 @@
     
     <!-- Wait List JS -->
     <script>
-      // Admin password (you can change this)
-      const ADMIN_PASSWORD = 'daniel2025';
-      
       // Initialize links array
       let links = [];
       
       // DOM elements
-      const adminPanel = document.getElementById('admin-panel');
-      const toggleAdminBtn = document.getElementById('toggle-admin');
-      const addLinkForm = document.getElementById('add-link-form');
       const linksContainer = document.getElementById('links-container');
-      
-      // Toggle admin panel
-      toggleAdminBtn.addEventListener('click', () => {
-        const isVisible = adminPanel.style.display === 'block';
-        adminPanel.style.display = isVisible ? 'none' : 'block';
-        toggleAdminBtn.innerHTML = isVisible ? 
-          '<i class="bi bi-gear"></i>' : 
-          '<i class="bi bi-x-circle"></i>';
-        toggleAdminBtn.style.opacity = isVisible ? '0.3' : '1';
-        
-        // Reload links to show/hide admin controls
-        loadLinks();
-      });
-      
-      // Add new link
-      addLinkForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const password = document.getElementById('admin-password').value;
-        if (password !== ADMIN_PASSWORD) {
-          alert('Incorrect admin password!');
-          return;
-        }
-        
-        const title = document.getElementById('link-title').value;
-        let url = document.getElementById('link-url').value.trim();
-        const description = document.getElementById('link-description').value;
-        
-        // Normalize URL - add https:// if no protocol is specified
-        if (url && !url.match(/^https?:\/\//)) {
-          url = 'https://' + url;
-        }
-        
-        // Log the URL for debugging
-        console.log('Submitting URL:', url);
-        
-        try {
-          const response = await fetch('https://danielwaitwebsite.danielwait1216.workers.dev/api/links', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              title,
-              url,
-              description,
-              password
-            })
-          });
-          
-          if (response.ok) {
-            addLinkForm.reset();
-            loadLinks();
-            alert('Link added successfully!');
-          } else {
-            const error = await response.json();
-            console.log('Server error response:', error);
-            alert('Error: ' + error.error);
-          }
-        } catch (error) {
-          alert('Error adding link: ' + error.message);
-        }
-      });
       
       // Load links from API
       async function loadLinks() {
@@ -414,68 +304,31 @@
         }
       }
       
-      // Display links
+      // Display links (read-only)
       function displayLinks() {
         if (links.length === 0) {
           linksContainer.innerHTML = `
             <div class="empty-state">
               <i class="bi bi-link-45deg"></i>
               <h4>No links yet</h4>
-              <p>Use the admin panel to add your first link to the wait list!</p>
+              <p>Check back soon for interesting links and resources!</p>
             </div>
           `;
           return;
         }
         
-        const isAdminMode = adminPanel.style.display === 'block';
-        
         linksContainer.innerHTML = `
           <div class="links-grid">
             ${links.map(link => `
               <div class="link-item">
-                ${isAdminMode ? `<button class="delete-btn" onclick="deleteLink(${link.id})">
-                  <i class="bi bi-trash"></i>
-                </button>` : ''}
                 <a href="${link.url}" target="_blank" class="link-title">
                   ${link.title}
                 </a>
                 ${link.description ? `<div class="link-description">${link.description}</div>` : ''}
-                ${isAdminMode ? `<div class="link-date">Added: ${link.date}</div>` : ''}
               </div>
             `).join('')}
           </div>
         `;
-      }
-      
-      // Delete link
-      async function deleteLink(id) {
-        const password = prompt('Enter admin password to delete:');
-        if (password !== ADMIN_PASSWORD) {
-          alert('Incorrect password!');
-          return;
-        }
-        
-        if (confirm('Are you sure you want to delete this link?')) {
-          try {
-            const response = await fetch(`https://danielwaitwebsite.danielwait1216.workers.dev/api/links/${id}`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ password })
-            });
-            
-            if (response.ok) {
-              loadLinks();
-              alert('Link deleted successfully!');
-            } else {
-              const error = await response.json();
-              alert('Error: ' + error.error);
-            }
-          } catch (error) {
-            alert('Error deleting link: ' + error.message);
-          }
-        }
       }
       
       // Load links on page load
