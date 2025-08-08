@@ -81,7 +81,7 @@ async function handleAPI(request, env, path) {
     if (path === '/api/links' && request.method === 'POST') {
       // Add new link
       const body = await request.json();
-      const { title, url, description, password } = body;
+      const { title, url, description } = body;
 
       // Validate required fields
       if (!title || !url) {
@@ -91,13 +91,7 @@ async function handleAPI(request, env, path) {
         });
       }
 
-      // Simple password check
-      if (password !== 'daniel2025') {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
+      // No password check needed since admin page is already protected by login
 
       try {
         const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
@@ -118,6 +112,60 @@ async function handleAPI(request, env, path) {
       } catch (kvError) {
         console.error('KV operation error:', kvError);
         return new Response(JSON.stringify({ error: 'Failed to save link' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    if (path.startsWith('/api/links/') && request.method === 'PUT') {
+      // Update link
+      const id = parseInt(path.split('/').pop());
+      const body = await request.json();
+      const { title, url, description, password } = body;
+
+      // Validate required fields
+      if (!title || !url) {
+        return new Response(JSON.stringify({ error: 'Title and URL are required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      if (password !== 'daniel2025') {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+        const linkIndex = links.findIndex(link => link.id === id);
+        
+        if (linkIndex === -1) {
+          return new Response(JSON.stringify({ error: 'Link not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        // Update the link
+        links[linkIndex] = {
+          ...links[linkIndex],
+          title: title.trim(),
+          url: url.trim(),
+          description: description ? description.trim() : ''
+        };
+
+        await env.WAIT_LIST_KV.put('links', JSON.stringify(links));
+
+        return new Response(JSON.stringify(links[linkIndex]), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (kvError) {
+        console.error('KV update error:', kvError);
+        return new Response(JSON.stringify({ error: 'Failed to update link' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
