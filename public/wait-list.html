@@ -78,15 +78,25 @@
       .link-title {
         font-size: 1.1rem;
         font-weight: bold;
-        color: #000;
-        text-decoration: none;
+        color: #007bff;
+        text-decoration: underline;
         display: block;
         margin-bottom: 8px;
         line-height: 1.3;
+        transition: all 0.3s ease;
+        position: relative;
       }
       
       .link-title:hover {
-        color: #007bff;
+        color: #0056b3;
+        text-decoration: none;
+        transform: translateX(5px);
+      }
+      
+      .link-title::after {
+        content: ' ↗';
+        font-size: 0.8rem;
+        opacity: 0.7;
       }
       
       .link-description {
@@ -151,19 +161,22 @@
         background: #0056b3;
       }
       
-      .toggle-admin {
-        background: #6c757d;
-        color: white;
+      .admin-button-hidden {
+        background: transparent;
+        color: #ccc;
         border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
+        padding: 8px;
+        border-radius: 50%;
         cursor: pointer;
-        font-size: 0.9rem;
-        margin-bottom: 20px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        opacity: 0.3;
       }
       
-      .toggle-admin:hover {
-        background: #545b62;
+      .admin-button-hidden:hover {
+        background: #f8f9fa;
+        color: #666;
+        opacity: 0.8;
       }
       
       .delete-btn {
@@ -225,12 +238,7 @@
           <p class="wait-list-subtitle">Curated collection of interesting links and resources</p>
         </div>
         
-        <!-- Admin Toggle Button -->
-        <button id="toggle-admin" class="toggle-admin">
-          <i class="bi bi-gear"></i> Admin Panel
-        </button>
-        
-        <!-- Admin Panel -->
+        <!-- Admin Panel (Hidden by default) -->
         <div id="admin-panel" class="admin-panel">
           <h3><i class="bi bi-gear"></i> Admin Panel</h3>
           <form id="add-link-form" novalidate>
@@ -299,6 +307,12 @@
             <a class="small" href="contact.html">Contact</a>
           </div>
         </div>
+        <!-- Hidden Admin Button -->
+        <div class="text-center mt-3">
+          <button id="toggle-admin" class="admin-button-hidden">
+            <i class="bi bi-gear"></i>
+          </button>
+        </div>
       </div>
     </footer>
 
@@ -327,8 +341,12 @@
         const isVisible = adminPanel.style.display === 'block';
         adminPanel.style.display = isVisible ? 'none' : 'block';
         toggleAdminBtn.innerHTML = isVisible ? 
-          '<i class="bi bi-gear"></i> Admin Panel' : 
-          '<i class="bi bi-x-circle"></i> Close Admin';
+          '<i class="bi bi-gear"></i>' : 
+          '<i class="bi bi-x-circle"></i>';
+        toggleAdminBtn.style.opacity = isVisible ? '0.3' : '1';
+        
+        // Reload links to show/hide admin controls
+        loadLinks();
       });
       
       // Add new link
@@ -409,18 +427,20 @@
           return;
         }
         
+        const isAdminMode = adminPanel.style.display === 'block';
+        
         linksContainer.innerHTML = `
           <div class="links-grid">
             ${links.map(link => `
               <div class="link-item">
-                <button class="delete-btn" onclick="deleteLink(${link.id})">
+                ${isAdminMode ? `<button class="delete-btn" onclick="deleteLink(${link.id})">
                   <i class="bi bi-trash"></i>
-                </button>
+                </button>` : ''}
                 <a href="${link.url}" target="_blank" class="link-title">
                   ${link.title}
                 </a>
                 ${link.description ? `<div class="link-description">${link.description}</div>` : ''}
-                <div class="link-date">Added: ${link.date}</div>
+                ${isAdminMode ? `<div class="link-date">Added: ${link.date}</div>` : ''}
               </div>
             `).join('')}
           </div>
