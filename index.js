@@ -6,7 +6,7 @@ export default {
 
     // Handle API routes
     if (path.startsWith('/api/')) {
-      console.log('API request:', path, request.method);
+      console.log('API request:', path, request.method, request.url);
       return handleAPI(request, env, path);
     }
 
@@ -17,9 +17,10 @@ export default {
 
 async function handleAPI(request, env, path) {
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': 'https://danielwait.com',
     'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '86400',
   };
 
   // Handle CORS preflight
@@ -28,6 +29,7 @@ async function handleAPI(request, env, path) {
   }
 
   try {
+    console.log('Checking GET /api/links, path:', path, 'method:', request.method);
     if (path === '/api/links' && request.method === 'GET') {
       // Get all links
       try {
@@ -43,6 +45,7 @@ async function handleAPI(request, env, path) {
       }
     }
 
+    console.log('Checking POST /api/links, path:', path, 'method:', request.method);
     if (path === '/api/links' && request.method === 'POST') {
       // Add new link
       const body = await request.json();
