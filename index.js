@@ -1,17 +1,31 @@
 // Cloudflare Worker for Wait List API
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    const path = url.pathname;
+    try {
+      const url = new URL(request.url);
+      const path = url.pathname;
+      
+      console.log('Worker request:', path, request.method);
 
-    // Handle API routes
-    if (path.startsWith('/api/')) {
-      console.log('API request:', path, request.method, request.url);
-      return handleAPI(request, env, path);
+      // Test route
+      if (path === '/test') {
+        return new Response('Worker is working!', {
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      }
+
+      // Handle API routes
+      if (path.startsWith('/api/')) {
+        console.log('API request:', path, request.method, request.url);
+        return handleAPI(request, env, path);
+      }
+
+      // Serve static files
+      return env.ASSETS.fetch(request);
+    } catch (error) {
+      console.error('Worker error:', error);
+      return new Response('Worker error: ' + error.message, { status: 500 });
     }
-
-    // Serve static files
-    return env.ASSETS.fetch(request);
   }
 };
 
