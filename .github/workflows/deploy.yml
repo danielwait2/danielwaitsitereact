@@ -22,6 +22,15 @@ jobs:
     - name: Install Wrangler
       run: npm install -g wrangler
         
+    - name: Check Wrangler version
+      run: wrangler --version
+        
+    - name: List files
+      run: ls -la
+        
+    - name: Check wrangler.toml
+      run: cat wrangler.toml
+        
     - name: Deploy to Cloudflare Workers
       run: wrangler deploy
       env:
