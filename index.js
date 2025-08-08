@@ -6,6 +6,7 @@ export default {
 
     // Handle API routes
     if (path.startsWith('/api/')) {
+      console.log('API request:', path, request.method);
       return handleAPI(request, env, path);
     }
 
@@ -118,6 +119,7 @@ async function handleAPI(request, env, path) {
       }
     }
 
+    console.log('API route not found:', path);
     return new Response('Not Found', { status: 404, headers: corsHeaders });
   } catch (error) {
     console.error('API error:', error);
