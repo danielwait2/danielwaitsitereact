@@ -175,15 +175,7 @@ async function handleAPI(request, env, path) {
     if (path.startsWith('/api/links/') && request.method === 'DELETE') {
       // Delete link
       const id = parseInt(path.split('/').pop());
-      const body = await request.json();
-      const { password } = body;
-
-      if (password !== 'daniel2025') {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
+      // No password check needed since admin page is already protected by login
 
       try {
         const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
