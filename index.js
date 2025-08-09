@@ -305,6 +305,21 @@ async function handleAPI(request, env, path) {
             dailyStats: {},
             hourlyStats: {}
           };
+        } else {
+          console.log('📊 Converting existing arrays back to Sets...');
+          // Convert arrays back to Sets for processing
+          Object.keys(analyticsData.dailyStats || {}).forEach(date => {
+            if (Array.isArray(analyticsData.dailyStats[date].uniqueSessions)) {
+              analyticsData.dailyStats[date].uniqueSessions = new Set(analyticsData.dailyStats[date].uniqueSessions);
+            }
+          });
+          
+          Object.keys(analyticsData.hourlyStats || {}).forEach(hour => {
+            if (Array.isArray(analyticsData.hourlyStats[hour].sessions)) {
+              analyticsData.hourlyStats[hour].sessions = new Set(analyticsData.hourlyStats[hour].sessions);
+            }
+          });
+          console.log('📊 Arrays converted back to Sets successfully');
         }
 
         const today = new Date().toISOString().split('T')[0];
