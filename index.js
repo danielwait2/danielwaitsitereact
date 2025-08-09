@@ -404,7 +404,8 @@ async function handleAPI(request, env, path) {
         analyticsData.dailyStats[today].pageViews += 1;
         analyticsData.dailyStats[today].uniqueSessions.add(sessionId);
         
-        console.log(`Tracking pageview for ${today}: ${analyticsData.dailyStats[today].pageViews} views, ${analyticsData.dailyStats[today].uniqueSessions.size} sessions`);
+        console.log(`📊 Tracking pageview for ${today}: ${analyticsData.dailyStats[today].pageViews} views, ${analyticsData.dailyStats[today].uniqueSessions.size} sessions`);
+        console.log(`📅 Current analytics date range:`, Object.keys(analyticsData.dailyStats).sort());
 
         // Track hourly stats
         const hourKey = `${today}-${hour.toString().padStart(2, '0')}`;
@@ -474,6 +475,12 @@ async function handleAPI(request, env, path) {
         
         console.log(`Analytics query - Today: ${today}, Today's pageviews: ${pageViewsToday}`);
         console.log(`Available daily stats dates:`, Object.keys(siteData.dailyStats || {}));
+        console.log(`Last 7 days range:`, last7Days);
+        console.log(`Weekly trends data:`, JSON.stringify(last7Days.map(date => ({
+          date,
+          hasData: !!siteData.dailyStats?.[date],
+          pageViews: siteData.dailyStats?.[date]?.pageViews || 0
+        }))));
         
         // Calculate popular pages
         const popularPages = Object.entries(siteData.pageViews || {})
