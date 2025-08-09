@@ -403,6 +403,8 @@ async function handleAPI(request, env, path) {
         }
         analyticsData.dailyStats[today].pageViews += 1;
         analyticsData.dailyStats[today].uniqueSessions.add(sessionId);
+        
+        console.log(`Tracking pageview for ${today}: ${analyticsData.dailyStats[today].pageViews} views, ${analyticsData.dailyStats[today].uniqueSessions.size} sessions`);
 
         // Track hourly stats
         const hourKey = `${today}-${hour.toString().padStart(2, '0')}`;
@@ -458,9 +460,10 @@ async function handleAPI(request, env, path) {
         }));
 
         // Process site analytics
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
         const last7Days = Array.from({length: 7}, (_, i) => {
-          const date = new Date();
+          const date = new Date(now);
           date.setDate(date.getDate() - i);
           return date.toISOString().split('T')[0];
         }).reverse();
@@ -468,6 +471,9 @@ async function handleAPI(request, env, path) {
         const pageViewsToday = siteData.dailyStats?.[today]?.pageViews || 0;
         const totalPageViews = Object.values(siteData.pageViews || {}).reduce((sum, page) => sum + page.count, 0);
         const totalSessions = Object.keys(siteData.sessions || {}).length;
+        
+        console.log(`Analytics query - Today: ${today}, Today's pageviews: ${pageViewsToday}`);
+        console.log(`Available daily stats dates:`, Object.keys(siteData.dailyStats || {}));
         
         // Calculate popular pages
         const popularPages = Object.entries(siteData.pageViews || {})
@@ -534,12 +540,26 @@ async function handleAPI(request, env, path) {
           .sort((a, b) => b.count - a.count);
 
         // Weekly trend data
-        const weeklyTrends = last7Days.map(date => ({
-          date: date,
-          pageViews: siteData.dailyStats?.[date]?.pageViews || 0,
-          sessions: Array.isArray(siteData.dailyStats?.[date]?.uniqueSessions) ? 
-            siteData.dailyStats[date].uniqueSessions.length : 0
-        }));
+        const weeklyTrends = last7Days.map(date => {
+          const dayStats = siteData.dailyStats?.[date];
+          let sessionCount = 0;
+          
+          if (dayStats?.uniqueSessions) {
+            if (Array.isArray(dayStats.uniqueSessions)) {
+              sessionCount = dayStats.uniqueSessions.length;
+            } else if (dayStats.uniqueSessions instanceof Set) {
+              sessionCount = dayStats.uniqueSessions.size;
+            } else if (typeof dayStats.uniqueSessions === 'object') {
+              sessionCount = Object.keys(dayStats.uniqueSessions).length;
+            }
+          }
+          
+          return {
+            date: date,
+            pageViews: dayStats?.pageViews || 0,
+            sessions: sessionCount
+          };
+        });
 
         return new Response(JSON.stringify({
           // Link analytics (existing)
