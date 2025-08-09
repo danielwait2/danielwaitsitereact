@@ -61,16 +61,24 @@ async function handleAPI(request, env, path) {
 
     console.log('Checking POST /api/login, path:', path, 'method:', request.method);
     if (path === '/api/login' && request.method === 'POST') {
-      // Validate admin login
+      // Validate admin login with username and password
       const body = await request.json();
-      const { password } = body;
+      const { username, password } = body;
 
-      if (password === 'daniel2025') {
-        return new Response(JSON.stringify({ success: true, message: 'Login successful' }), {
+      // Server-side credentials (in production, these should be environment variables)
+      const ADMIN_USERNAME = 'admin';
+      const ADMIN_PASSWORD = 'daniel2025';
+
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        return new Response(JSON.stringify({ 
+          success: true, 
+          message: 'Login successful',
+          sessionToken: 'valid-session-' + Date.now() // Simple session token
+        }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       } else {
-        return new Response(JSON.stringify({ error: 'Invalid password' }), {
+        return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
