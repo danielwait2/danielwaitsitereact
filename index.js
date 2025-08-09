@@ -255,7 +255,6 @@ async function handleAPI(request, env, path) {
 
         console.log('📊 Processing pageview for:', { page, sessionId, timestamp });
 
-      try {
         // Get geographic data from Cloudflare headers
         const country = request.headers.get('CF-IPCountry') || 'Unknown';
         const region = request.headers.get('CF-Region') || 'Unknown';
@@ -448,18 +447,11 @@ async function handleAPI(request, env, path) {
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
-      } catch (kvError) {
-        console.error('❌ KV pageview tracking error:', kvError);
-        console.error('❌ Error stack:', kvError.stack);
-        return new Response(JSON.stringify({ error: 'Failed to track pageview', details: kvError.message }), {
+      } catch (error) {
+        console.error('❌ Analytics tracking error:', error);
+        console.error('❌ Error stack:', error.stack);
+        return new Response(JSON.stringify({ error: 'Failed to track pageview', details: error.message }), {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-      } catch (parseError) {
-        console.error('❌ JSON parsing error:', parseError);
-        return new Response(JSON.stringify({ error: 'Invalid JSON data', details: parseError.message }), {
-          status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
