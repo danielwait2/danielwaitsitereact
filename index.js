@@ -566,10 +566,54 @@ async function handleAPI(request, env, path) {
           pageViews: siteData.dailyStats?.[date]?.pageViews || 0
         }))));
         
+        // Helper function to get friendly page names
+        function getPageDisplayName(url) {
+          const pathMappings = {
+            '/': 'Home (About Me)',
+            '/index.html': 'Home (About Me)',
+            '/wait-list': 'Wait List',
+            '/wait-list.html': 'Wait List',
+            '/wait-works': 'Wait Works',
+            '/wait-works.html': 'Wait Works',
+            '/resume': 'Resume',
+            '/resume.html': 'Resume',
+            '/projects': 'Projects',
+            '/projects.html': 'Projects',
+            '/contact': 'Contact',
+            '/contact.html': 'Contact',
+            '/interesting-links': 'Interesting Links',
+            '/interesting-links.html': 'Interesting Links'
+          };
+          
+          // Return mapped name if exists, otherwise format the URL nicely
+          if (pathMappings[url]) {
+            return pathMappings[url];
+          }
+          
+          // For unmapped URLs, clean them up
+          let cleanUrl = url;
+          if (cleanUrl.endsWith('.html')) {
+            cleanUrl = cleanUrl.slice(0, -5);
+          }
+          if (cleanUrl.startsWith('/')) {
+            cleanUrl = cleanUrl.slice(1);
+          }
+          
+          // Convert dashes to spaces and title case
+          if (cleanUrl) {
+            return cleanUrl.split('-').map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+          }
+          
+          return url; // Fallback to original URL
+        }
+        
         // Calculate popular pages
         const popularPages = Object.entries(siteData.pageViews || {})
           .map(([page, data]) => ({
-            page: page,
+            page: getPageDisplayName(page),
+            url: page, // Keep original URL for reference
             views: data.count,
             todayViews: data.dailyViews?.[today] || 0
           }))
