@@ -264,29 +264,45 @@ async function handleAPI(request, env, path) {
         const longitude = request.headers.get('CF-IPLongitude') || null;
 
         // Get current analytics data
-        const analyticsData = await env.WAIT_LIST_KV.get('site_analytics', { type: 'json' }) || {
-          pageViews: {},
-          sessions: {},
-          referrers: {},
-          devices: {},
-          browsers: {},
-          countries: {},
-          regions: {},
-          cities: {},
-          dailyStats: {},
-          hourlyStats: {}
-        };
+        console.log('📊 Fetching analytics data from KV...');
+        let analyticsData;
+        try {
+          analyticsData = await env.WAIT_LIST_KV.get('site_analytics', { type: 'json' });
+          console.log('📊 KV fetch successful, data exists:', !!analyticsData);
+        } catch (kvGetError) {
+          console.error('❌ KV get error:', kvGetError);
+          analyticsData = null;
+        }
+        
+        if (!analyticsData) {
+          console.log('📊 Initializing new analytics data structure');
+          analyticsData = {
+            pageViews: {},
+            sessions: {},
+            referrers: {},
+            devices: {},
+            browsers: {},
+            countries: {},
+            regions: {},
+            cities: {},
+            dailyStats: {},
+            hourlyStats: {}
+          };
+        }
 
         const today = new Date().toISOString().split('T')[0];
         const hour = new Date().getHours();
         const thisMonth = today.substring(0, 7); // YYYY-MM
+        console.log('📊 Date calculations:', { today, hour, thisMonth });
 
         // Track page views
+        console.log('📊 Tracking page views for:', page);
         if (!analyticsData.pageViews[page]) {
           analyticsData.pageViews[page] = { count: 0, dailyViews: {}, firstView: timestamp };
         }
         analyticsData.pageViews[page].count += 1;
         analyticsData.pageViews[page].lastView = timestamp;
+        console.log('📊 Page view updated:', analyticsData.pageViews[page]);
         
         if (!analyticsData.pageViews[page].dailyViews[today]) {
           analyticsData.pageViews[page].dailyViews[today] = 0;
@@ -407,7 +423,9 @@ async function handleAPI(request, env, path) {
         }
 
         // Track daily stats
+        console.log('📊 Tracking daily stats...');
         if (!analyticsData.dailyStats[today]) {
+          console.log('📊 Creating new daily stats for:', today);
           analyticsData.dailyStats[today] = { 
             pageViews: 0, 
             uniqueSessions: new Set(),
@@ -429,19 +447,28 @@ async function handleAPI(request, env, path) {
         analyticsData.hourlyStats[hourKey].sessions.add(sessionId);
 
         // Convert Sets to arrays for storage
-        Object.keys(analyticsData.dailyStats).forEach(date => {
-          if (analyticsData.dailyStats[date].uniqueSessions instanceof Set) {
-            analyticsData.dailyStats[date].uniqueSessions = Array.from(analyticsData.dailyStats[date].uniqueSessions);
-          }
-        });
-        
-        Object.keys(analyticsData.hourlyStats).forEach(hour => {
-          if (analyticsData.hourlyStats[hour].sessions instanceof Set) {
-            analyticsData.hourlyStats[hour].sessions = Array.from(analyticsData.hourlyStats[hour].sessions);
-          }
-        });
+        console.log('📊 Converting Sets to arrays for storage...');
+        try {
+          Object.keys(analyticsData.dailyStats).forEach(date => {
+            if (analyticsData.dailyStats[date].uniqueSessions instanceof Set) {
+              analyticsData.dailyStats[date].uniqueSessions = Array.from(analyticsData.dailyStats[date].uniqueSessions);
+            }
+          });
+          
+          Object.keys(analyticsData.hourlyStats).forEach(hour => {
+            if (analyticsData.hourlyStats[hour].sessions instanceof Set) {
+              analyticsData.hourlyStats[hour].sessions = Array.from(analyticsData.hourlyStats[hour].sessions);
+            }
+          });
+          console.log('📊 Sets converted successfully');
+        } catch (conversionError) {
+          console.error('❌ Set conversion error:', conversionError);
+          throw conversionError;
+        }
 
+        console.log('📊 Saving analytics data to KV...');
         await env.WAIT_LIST_KV.put('site_analytics', JSON.stringify(analyticsData));
+        console.log('📊 KV save successful');
 
         console.log('✅ Successfully saved analytics data');
         return new Response(JSON.stringify({ success: true }), {
