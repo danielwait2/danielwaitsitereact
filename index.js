@@ -229,17 +229,31 @@ async function handleAPI(request, env, path) {
 
     if (path === '/api/track-pageview' && request.method === 'POST') {
       // Track page view with comprehensive data
-      const body = await request.json();
-      const { 
-        page, 
-        referrer, 
-        userAgent, 
-        screenWidth, 
-        screenHeight, 
-        timestamp,
-        sessionId,
-        timeOnPreviousPage 
-      } = body;
+      try {
+        console.log('📊 Starting pageview tracking...');
+        const body = await request.json();
+        console.log('📊 Request body:', JSON.stringify(body));
+        
+        const { 
+          page, 
+          referrer, 
+          userAgent, 
+          screenWidth, 
+          screenHeight, 
+          timestamp,
+          sessionId,
+          timeOnPreviousPage 
+        } = body;
+
+        if (!page || !sessionId) {
+          console.error('❌ Missing required fields:', { page, sessionId });
+          return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        console.log('📊 Processing pageview for:', { page, sessionId, timestamp });
 
       try {
         // Get geographic data from Cloudflare headers
@@ -430,13 +444,22 @@ async function handleAPI(request, env, path) {
 
         await env.WAIT_LIST_KV.put('site_analytics', JSON.stringify(analyticsData));
 
+        console.log('✅ Successfully saved analytics data');
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       } catch (kvError) {
-        console.error('KV pageview tracking error:', kvError);
-        return new Response(JSON.stringify({ error: 'Failed to track pageview' }), {
+        console.error('❌ KV pageview tracking error:', kvError);
+        console.error('❌ Error stack:', kvError.stack);
+        return new Response(JSON.stringify({ error: 'Failed to track pageview', details: kvError.message }), {
           status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      } catch (parseError) {
+        console.error('❌ JSON parsing error:', parseError);
+        return new Response(JSON.stringify({ error: 'Invalid JSON data', details: parseError.message }), {
+          status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
