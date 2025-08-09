@@ -464,9 +464,9 @@ async function handleAPI(request, env, path) {
         const today = now.toISOString().split('T')[0];
         const last7Days = Array.from({length: 7}, (_, i) => {
           const date = new Date(now);
-          date.setDate(date.getDate() - i);
+          date.setDate(date.getDate() - (6 - i)); // Show last 6 days + today
           return date.toISOString().split('T')[0];
-        }).reverse();
+        });
 
         const pageViewsToday = siteData.dailyStats?.[today]?.pageViews || 0;
         const totalPageViews = Object.values(siteData.pageViews || {}).reduce((sum, page) => sum + page.count, 0);
