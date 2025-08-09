@@ -757,14 +757,14 @@
               </div>
             </div>
 
-            <!-- Weekly Trends -->
+            <!-- 30-Day Trends -->
             <div class="admin-panel">
-              <h3><i class="bi bi-graph-up"></i> Weekly Trends</h3>
-              <div id="weekly-trends-container">
+              <h3><i class="bi bi-graph-up"></i> 30-Day Trends</h3>
+              <div id="daily-trends-container">
                 <div class="empty-state">
                   <i class="bi bi-graph-up"></i>
                   <h4>No trend data yet</h4>
-                  <p>Weekly trend data will appear here!</p>
+                  <p>Daily trend data will appear here!</p>
                 </div>
               </div>
             </div>
@@ -1171,8 +1171,8 @@
         displayRegionStats(siteStats.regionStats || []);
         displayCityStats(siteStats.cityStats || []);
         
-        // Display weekly trends
-        displayWeeklyTrends(siteStats.weeklyTrends || []);
+        // Display 30-day trends
+        displayDailyTrends(siteStats.dailyTrends || []);
       }
       
       function displayPopularPages(pages) {
@@ -1355,35 +1355,53 @@
         return flagMap[countryCode] || '🌍';
       }
       
-      function displayWeeklyTrends(trends) {
-        const container = document.getElementById('weekly-trends-container');
+      function displayDailyTrends(trends) {
+        const container = document.getElementById('daily-trends-container');
         if (trends.length === 0) {
           container.innerHTML = `
             <div class="empty-state">
               <i class="bi bi-graph-up"></i>
               <h4>No trend data yet</h4>
-              <p>Weekly trend data will appear here!</p>
+              <p>Daily trend data will appear here!</p>
             </div>
           `;
           return;
         }
         
-        const maxViews = Math.max(...trends.map(t => t.pageViews));
+        const maxViews = Math.max(...trends.map(t => t.pageViews), 1);
+        
+        // Show last 7 days prominently
+        const recentTrends = trends.slice(-7);
         
         container.innerHTML = `
-          <div class="row">
-            ${trends.map(trend => `
-              <div class="col">
-                <div class="text-center">
-                  <div class="mb-2">
-                    <div class="bg-primary" style="height: ${Math.max(20, (trend.pageViews / maxViews) * 100)}px; width: 100%; border-radius: 4px;"></div>
+          <div class="mb-4">
+            <h6 class="mb-3">Last 7 Days</h6>
+            <div class="row">
+              ${recentTrends.map(trend => `
+                <div class="col">
+                  <div class="text-center">
+                    <div class="mb-2">
+                      <div class="bg-primary" style="height: ${Math.max(20, (trend.pageViews / maxViews) * 100)}px; width: 100%; border-radius: 4px;"></div>
+                    </div>
+                    <small class="text-muted">${trend.displayDate || new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</small>
+                    <div class="fw-bold">${trend.pageViews}</div>
+                    <small class="text-muted">${trend.sessions} sessions</small>
                   </div>
-                  <small class="text-muted">${new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</small>
-                  <div class="fw-bold">${trend.pageViews}</div>
-                  <small class="text-muted">${trend.sessions} sessions</small>
                 </div>
-              </div>
-            `).join('')}
+              `).join('')}
+            </div>
+          </div>
+          
+          <div>
+            <h6 class="mb-3">30-Day Overview</h6>
+            <div style="display: flex; gap: 2px; overflow-x: auto; padding: 10px 0;">
+              ${trends.map(trend => `
+                <div style="min-width: 15px; text-align: center;" title="${trend.displayDate || new Date(trend.date).toLocaleDateString()}: ${trend.pageViews} views">
+                  <div style="height: ${Math.max(5, (trend.pageViews / maxViews) * 30)}px; background: #007bff; border-radius: 2px; margin-bottom: 2px;"></div>
+                  <small style="font-size: 10px; color: #666;">${new Date(trend.date).getDate()}</small>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `;
       }

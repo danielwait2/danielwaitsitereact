@@ -542,12 +542,14 @@ async function handleAPI(request, env, path) {
           dailyClicks: clickData[link.id]?.dailyClicks || {}
         }));
 
-        // Process site analytics
+        // Process site analytics with rolling 30-day window
         const now = new Date();
         const today = now.toISOString().split('T')[0];
-        const last7Days = Array.from({length: 7}, (_, i) => {
+        
+        // Generate last 30 days (including today)
+        const last30Days = Array.from({length: 30}, (_, i) => {
           const date = new Date(now);
-          date.setDate(date.getDate() - (6 - i)); // Show last 6 days + today
+          date.setDate(date.getDate() - (29 - i)); // Show last 29 days + today
           return date.toISOString().split('T')[0];
         });
 
@@ -557,8 +559,8 @@ async function handleAPI(request, env, path) {
         
         console.log(`Analytics query - Today: ${today}, Today's pageviews: ${pageViewsToday}`);
         console.log(`Available daily stats dates:`, Object.keys(siteData.dailyStats || {}));
-        console.log(`Last 7 days range:`, last7Days);
-        console.log(`Weekly trends data:`, JSON.stringify(last7Days.map(date => ({
+        console.log(`Last 30 days range:`, last30Days.slice(0, 5), '...', last30Days.slice(-5));
+        console.log(`Recent trends data:`, JSON.stringify(last30Days.slice(-7).map(date => ({
           date,
           hasData: !!siteData.dailyStats?.[date],
           pageViews: siteData.dailyStats?.[date]?.pageViews || 0
@@ -628,8 +630,8 @@ async function handleAPI(request, env, path) {
           }))
           .sort((a, b) => b.count - a.count);
 
-        // Weekly trend data
-        const weeklyTrends = last7Days.map(date => {
+        // 30-day trend data
+        const dailyTrends = last30Days.map(date => {
           const dayStats = siteData.dailyStats?.[date];
           let sessionCount = 0;
           
@@ -646,7 +648,12 @@ async function handleAPI(request, env, path) {
           return {
             date: date,
             pageViews: dayStats?.pageViews || 0,
-            sessions: sessionCount
+            sessions: sessionCount,
+            // Add formatted date for display
+            displayDate: new Date(date).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric' 
+            })
           };
         });
 
@@ -670,7 +677,9 @@ async function handleAPI(request, env, path) {
             countryStats: countryStats.slice(0, 10),
             regionStats: regionStats.slice(0, 10),
             cityStats: cityStats.slice(0, 10),
-            weeklyTrends: weeklyTrends
+            dailyTrends: dailyTrends,
+            // Also provide weekly summary (last 7 days) for compatibility
+            weeklyTrends: dailyTrends.slice(-7)
           }
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
