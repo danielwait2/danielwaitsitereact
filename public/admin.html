@@ -1369,18 +1369,30 @@
         }
         
         const maxViews = Math.max(...trends.map(t => t.pageViews), 1);
+        const maxSessions = Math.max(...trends.map(t => t.sessions), 1);
+        const maxValue = Math.max(maxViews, maxSessions);
         const chartHeight = 200;
         const chartWidth = 800;
         const padding = 40;
         
-        // Create SVG line chart
-        const points = trends.map((trend, index) => {
+        // Create points for both lines
+        const viewsPoints = trends.map((trend, index) => {
           const x = padding + (index * (chartWidth - 2 * padding)) / (trends.length - 1);
-          const y = chartHeight - padding - ((trend.pageViews / maxViews) * (chartHeight - 2 * padding));
+          const y = chartHeight - padding - ((trend.pageViews / maxValue) * (chartHeight - 2 * padding));
           return { x, y, data: trend };
         });
         
-        const pathData = points.map((point, index) => 
+        const sessionsPoints = trends.map((trend, index) => {
+          const x = padding + (index * (chartWidth - 2 * padding)) / (trends.length - 1);
+          const y = chartHeight - padding - ((trend.sessions / maxValue) * (chartHeight - 2 * padding));
+          return { x, y, data: trend };
+        });
+        
+        const viewsPathData = viewsPoints.map((point, index) => 
+          `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`
+        ).join(' ');
+        
+        const sessionsPathData = sessionsPoints.map((point, index) => 
           `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`
         ).join(' ');
         
@@ -1390,7 +1402,7 @@
               <!-- Grid lines -->
               ${Array.from({length: 6}, (_, i) => {
                 const y = padding + (i * (chartHeight - 2 * padding)) / 5;
-                const value = Math.round(maxViews - (i * maxViews) / 5);
+                const value = Math.round(maxValue - (i * maxValue) / 5);
                 return `
                   <line x1="${padding}" y1="${y}" x2="${chartWidth - padding}" y2="${y}" 
                         stroke="var(--border-color, #f0f0f0)" stroke-width="1"/>
@@ -1398,27 +1410,55 @@
                 `;
               }).join('')}
               
-              <!-- Line path -->
-              <path d="${pathData}" stroke="#007bff" stroke-width="3" fill="none"/>
+              <!-- Page Views Line -->
+              <path d="${viewsPathData}" stroke="#007bff" stroke-width="3" fill="none"/>
               
-              <!-- Data points -->
-              ${points.map(point => `
+              <!-- Sessions Line -->
+              <path d="${sessionsPathData}" stroke="#28a745" stroke-width="3" fill="none"/>
+              
+              <!-- Page Views Data points -->
+              ${viewsPoints.map(point => `
                 <circle cx="${point.x}" cy="${point.y}" r="4" fill="#007bff" stroke="white" stroke-width="2"
                         data-date="${point.data.date}" 
                         data-views="${point.data.pageViews}" 
                         data-sessions="${point.data.sessions}"
                         data-display-date="${point.data.displayDate || new Date(point.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}"
+                        data-type="views"
+                        style="cursor: pointer;"
+                        class="chart-point"/>
+              `).join('')}
+              
+              <!-- Sessions Data points -->
+              ${sessionsPoints.map(point => `
+                <circle cx="${point.x}" cy="${point.y}" r="4" fill="#28a745" stroke="white" stroke-width="2"
+                        data-date="${point.data.date}" 
+                        data-views="${point.data.pageViews}" 
+                        data-sessions="${point.data.sessions}"
+                        data-display-date="${point.data.displayDate || new Date(point.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}"
+                        data-type="sessions"
                         style="cursor: pointer;"
                         class="chart-point"/>
               `).join('')}
               
               <!-- X-axis labels (show every 5th day) -->
-              ${points.filter((_, i) => i % 5 === 0 || i === points.length - 1).map(point => `
+              ${viewsPoints.filter((_, i) => i % 5 === 0 || i === viewsPoints.length - 1).map(point => `
                 <text x="${point.x}" y="${chartHeight - 10}" fill="var(--text-color, #666)" font-size="11" text-anchor="middle">
                   ${point.data.displayDate || new Date(point.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </text>
               `).join('')}
             </svg>
+            
+            <!-- Legend -->
+            <div style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; font-size: 14px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 20px; height: 3px; background: #007bff; border-radius: 2px;"></div>
+                <span style="color: var(--text-color, #333);">Page Views</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 20px; height: 3px; background: #28a745; border-radius: 2px;"></div>
+                <span style="color: var(--text-color, #333);">Sessions</span>
+              </div>
+            </div>
             
             <!-- Tooltip -->
             <div id="chart-tooltip" style="
@@ -1445,12 +1485,21 @@
             const date = e.target.getAttribute('data-display-date');
             const views = e.target.getAttribute('data-views');
             const sessions = e.target.getAttribute('data-sessions');
+            const type = e.target.getAttribute('data-type');
             
-            tooltip.innerHTML = `
-              <div><strong>${date}</strong></div>
-              <div>${views} page views</div>
-              <div>${sessions} sessions</div>
-            `;
+            if (type === 'views') {
+              tooltip.innerHTML = `
+                <div><strong>${date}</strong></div>
+                <div style="color: #007bff;">📊 ${views} page views</div>
+                <div style="color: #666; font-size: 11px;">${sessions} sessions on this day</div>
+              `;
+            } else {
+              tooltip.innerHTML = `
+                <div><strong>${date}</strong></div>
+                <div style="color: #28a745;">👥 ${sessions} sessions</div>
+                <div style="color: #666; font-size: 11px;">${views} page views on this day</div>
+              `;
+            }
             tooltip.style.opacity = '1';
           });
           
