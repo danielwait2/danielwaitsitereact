@@ -470,8 +470,13 @@
                 </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics-panel" type="button" role="tab">
-                  <i class="bi bi-bar-chart"></i> Analytics
+                <button class="nav-link" id="link-analytics-tab" data-bs-toggle="tab" data-bs-target="#link-analytics-panel" type="button" role="tab">
+                  <i class="bi bi-link-45deg"></i> Link Analytics
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="site-analytics-tab" data-bs-toggle="tab" data-bs-target="#site-analytics-panel" type="button" role="tab">
+                  <i class="bi bi-graph-up"></i> Site Analytics
                 </button>
               </li>
             </ul>
@@ -540,13 +545,13 @@
             </div>
           </div>
           
-          <!-- Analytics Tab -->
-          <div class="tab-pane fade" id="analytics-panel" role="tabpanel">
-            <!-- Analytics Stats Cards -->
+          <!-- Link Analytics Tab -->
+          <div class="tab-pane fade" id="link-analytics-panel" role="tabpanel">
+            <!-- Link Analytics Stats Cards -->
             <div class="stats-cards">
               <div class="stat-card">
                 <div class="stat-number" id="total-clicks">0</div>
-                <div class="stat-label">Total Clicks</div>
+                <div class="stat-label">Total Link Clicks</div>
               </div>
               <div class="stat-card">
                 <div class="stat-number" id="active-links">0</div>
@@ -558,16 +563,157 @@
               </div>
             </div>
             
-            <!-- Analytics Table -->
+            <!-- Link Analytics Table -->
             <div class="admin-panel">
-              <h3><i class="bi bi-bar-chart"></i> Link Analytics</h3>
+              <h3><i class="bi bi-link-45deg"></i> Link Click Analytics</h3>
               <div class="analytics-table">
-                <div id="analytics-container">
+                <div id="link-analytics-container">
                   <div class="empty-state">
-                    <i class="bi bi-bar-chart"></i>
-                    <h4>No analytics data yet</h4>
+                    <i class="bi bi-link-45deg"></i>
+                    <h4>No link click data yet</h4>
                     <p>Analytics will appear here once people start clicking on your links!</p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Site Analytics Tab -->
+          <div class="tab-pane fade" id="site-analytics-panel" role="tabpanel">
+            <!-- Site Analytics Stats Cards -->
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-number" id="total-pageviews">0</div>
+                <div class="stat-label">Total Page Views</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="pageviews-today">0</div>
+                <div class="stat-label">Views Today</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="total-sessions">0</div>
+                <div class="stat-label">Total Sessions</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="avg-pages-session">0</div>
+                <div class="stat-label">Avg Pages/Session</div>
+              </div>
+            </div>
+            
+            <!-- Site Analytics Panels -->
+            <div class="row">
+              <div class="col-lg-6">
+                <!-- Popular Pages -->
+                <div class="admin-panel">
+                  <h3><i class="bi bi-file-earmark-text"></i> Popular Pages</h3>
+                  <div id="popular-pages-container">
+                    <div class="empty-state">
+                      <i class="bi bi-file-earmark-text"></i>
+                      <h4>No page data yet</h4>
+                      <p>Page view data will appear here!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-6">
+                <!-- Top Referrers -->
+                <div class="admin-panel">
+                  <h3><i class="bi bi-arrow-left-circle"></i> Top Referrers</h3>
+                  <div id="top-referrers-container">
+                    <div class="empty-state">
+                      <i class="bi bi-arrow-left-circle"></i>
+                      <h4>No referrer data yet</h4>
+                      <p>Referrer data will appear here!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-lg-6">
+                <!-- Device Stats -->
+                <div class="admin-panel">
+                  <h3><i class="bi bi-display"></i> Device Types</h3>
+                  <div id="device-stats-container">
+                    <div class="empty-state">
+                      <i class="bi bi-display"></i>
+                      <h4>No device data yet</h4>
+                      <p>Device data will appear here!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-6">
+                <!-- Browser Stats -->
+                <div class="admin-panel">
+                  <h3><i class="bi bi-browser-chrome"></i> Browser Usage</h3>
+                  <div id="browser-stats-container">
+                    <div class="empty-state">
+                      <i class="bi bi-browser-chrome"></i>
+                      <h4>No browser data yet</h4>
+                      <p>Browser data will appear here!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Geographic Data -->
+            <div class="row">
+              <div class="col-lg-4">
+                <!-- Top Countries -->
+                <div class="admin-panel">
+                  <h3><i class="bi bi-globe"></i> Top Countries</h3>
+                  <div id="country-stats-container">
+                    <div class="empty-state">
+                      <i class="bi bi-globe"></i>
+                      <h4>No country data yet</h4>
+                      <p>Geographic data will appear here!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-4">
+                <!-- Top Regions -->
+                <div class="admin-panel">
+                  <h3><i class="bi bi-geo-alt"></i> Top Regions</h3>
+                  <div id="region-stats-container">
+                    <div class="empty-state">
+                      <i class="bi bi-geo-alt"></i>
+                      <h4>No region data yet</h4>
+                      <p>Regional data will appear here!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-lg-4">
+                <!-- Top Cities -->
+                <div class="admin-panel">
+                  <h3><i class="bi bi-building"></i> Top Cities</h3>
+                  <div id="city-stats-container">
+                    <div class="empty-state">
+                      <i class="bi bi-building"></i>
+                      <h4>No city data yet</h4>
+                      <p>City data will appear here!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weekly Trends -->
+            <div class="admin-panel">
+              <h3><i class="bi bi-graph-up"></i> Weekly Trends</h3>
+              <div id="weekly-trends-container">
+                <div class="empty-state">
+                  <i class="bi bi-graph-up"></i>
+                  <h4>No trend data yet</h4>
+                  <p>Weekly trend data will appear here!</p>
                 </div>
               </div>
             </div>
@@ -880,22 +1026,22 @@
         }
       }
       
-      // Display analytics data
-      function displayAnalytics(data) {
-        // Update analytics stats
-        document.getElementById('total-clicks').textContent = data.totalClicks;
-        document.getElementById('active-links').textContent = data.activeLinks;
+      // Display link analytics data
+      function displayLinkAnalytics(data) {
+        // Update link analytics stats
+        document.getElementById('total-clicks').textContent = data.totalLinkClicks || 0;
+        document.getElementById('active-links').textContent = data.activeLinks || 0;
         document.getElementById('avg-clicks').textContent = data.totalLinks > 0 ? 
-          Math.round(data.totalClicks / data.totalLinks * 10) / 10 : 0;
+          Math.round((data.totalLinkClicks || 0) / data.totalLinks * 10) / 10 : 0;
         
-        // Display analytics table
-        const analyticsContainer = document.getElementById('analytics-container');
+        // Display link analytics table
+        const linkAnalyticsContainer = document.getElementById('link-analytics-container');
         
-        if (data.analytics.length === 0) {
-          analyticsContainer.innerHTML = `
+        if (!data.linkAnalytics || data.linkAnalytics.length === 0) {
+          linkAnalyticsContainer.innerHTML = `
             <div class="empty-state">
-              <i class="bi bi-bar-chart"></i>
-              <h4>No analytics data yet</h4>
+              <i class="bi bi-link-45deg"></i>
+              <h4>No link click data yet</h4>
               <p>Analytics will appear here once people start clicking on your links!</p>
             </div>
           `;
@@ -903,9 +1049,9 @@
         }
         
         // Sort by click count (highest first)
-        const sortedAnalytics = data.analytics.sort((a, b) => b.clicks - a.clicks);
+        const sortedAnalytics = data.linkAnalytics.sort((a, b) => b.clicks - a.clicks);
         
-        analyticsContainer.innerHTML = `
+        linkAnalyticsContainer.innerHTML = `
           <div class="analytics-row analytics-header">
             <div>Link Title</div>
             <div>Total Clicks</div>
@@ -947,9 +1093,260 @@
         `;
       }
       
+      // Display site analytics data
+      function displaySiteAnalytics(data) {
+        const siteStats = data.siteStats || {};
+        
+        // Update site analytics stats
+        document.getElementById('total-pageviews').textContent = siteStats.totalPageViews || 0;
+        document.getElementById('pageviews-today').textContent = siteStats.pageViewsToday || 0;
+        document.getElementById('total-sessions').textContent = siteStats.totalSessions || 0;
+        document.getElementById('avg-pages-session').textContent = siteStats.avgPagesPerSession || 0;
+        
+        // Display popular pages
+        displayPopularPages(siteStats.popularPages || []);
+        
+        // Display top referrers
+        displayTopReferrers(siteStats.topReferrers || []);
+        
+        // Display device stats
+        displayDeviceStats(siteStats.deviceStats || []);
+        
+        // Display browser stats
+        displayBrowserStats(siteStats.browserStats || []);
+        
+        // Display geographic data
+        displayCountryStats(siteStats.countryStats || []);
+        displayRegionStats(siteStats.regionStats || []);
+        displayCityStats(siteStats.cityStats || []);
+        
+        // Display weekly trends
+        displayWeeklyTrends(siteStats.weeklyTrends || []);
+      }
+      
+      function displayPopularPages(pages) {
+        const container = document.getElementById('popular-pages-container');
+        if (pages.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-file-earmark-text"></i>
+              <h4>No page data yet</h4>
+              <p>Page view data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = pages.slice(0, 5).map(page => `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+            <div>
+              <strong>${page.page}</strong>
+              <small class="text-muted d-block">Today: ${page.todayViews}</small>
+            </div>
+            <div class="text-primary fw-bold">${page.views}</div>
+          </div>
+        `).join('');
+      }
+      
+      function displayTopReferrers(referrers) {
+        const container = document.getElementById('top-referrers-container');
+        if (referrers.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-arrow-left-circle"></i>
+              <h4>No referrer data yet</h4>
+              <p>Referrer data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = referrers.slice(0, 5).map(ref => `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+            <div>
+              <strong>${ref.domain}</strong>
+              <small class="text-muted d-block">Today: ${ref.todayReferrals}</small>
+            </div>
+            <div class="text-success fw-bold">${ref.referrals}</div>
+          </div>
+        `).join('');
+      }
+      
+      function displayDeviceStats(devices) {
+        const container = document.getElementById('device-stats-container');
+        if (devices.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-display"></i>
+              <h4>No device data yet</h4>
+              <p>Device data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = devices.slice(0, 5).map(device => `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+            <div>
+              <strong>${device.type}</strong>
+              <small class="text-muted d-block">${device.resolution}</small>
+            </div>
+            <div class="text-info fw-bold">${device.count}</div>
+          </div>
+        `).join('');
+      }
+      
+      function displayBrowserStats(browsers) {
+        const container = document.getElementById('browser-stats-container');
+        if (browsers.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-browser-chrome"></i>
+              <h4>No browser data yet</h4>
+              <p>Browser data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = browsers.slice(0, 5).map(browser => `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+            <div>
+              <strong>${browser.browser}</strong>
+              <small class="text-muted d-block">Today: ${browser.todayUsers}</small>
+            </div>
+            <div class="text-warning fw-bold">${browser.count}</div>
+          </div>
+        `).join('');
+      }
+      
+      function displayCountryStats(countries) {
+        const container = document.getElementById('country-stats-container');
+        if (countries.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-globe"></i>
+              <h4>No country data yet</h4>
+              <p>Geographic data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = countries.slice(0, 5).map(country => `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+            <div>
+              <strong>${getCountryFlag(country.country)} ${country.country}</strong>
+              <small class="text-muted d-block">Today: ${country.todayVisitors}</small>
+            </div>
+            <div class="text-success fw-bold">${country.count}</div>
+          </div>
+        `).join('');
+      }
+      
+      function displayRegionStats(regions) {
+        const container = document.getElementById('region-stats-container');
+        if (regions.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-geo-alt"></i>
+              <h4>No region data yet</h4>
+              <p>Regional data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = regions.slice(0, 5).map(region => `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+            <div>
+              <strong>${region.region}</strong>
+              <small class="text-muted d-block">${region.country} • Today: ${region.todayVisitors}</small>
+            </div>
+            <div class="text-info fw-bold">${region.count}</div>
+          </div>
+        `).join('');
+      }
+      
+      function displayCityStats(cities) {
+        const container = document.getElementById('city-stats-container');
+        if (cities.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-building"></i>
+              <h4>No city data yet</h4>
+              <p>City data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = cities.slice(0, 5).map(city => `
+          <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+            <div>
+              <strong>${city.city}</strong>
+              <small class="text-muted d-block">${city.country} • Today: ${city.todayVisitors}</small>
+            </div>
+            <div class="text-warning fw-bold">${city.count}</div>
+          </div>
+        `).join('');
+      }
+      
+      // Helper function to get country flag emoji
+      function getCountryFlag(countryCode) {
+        const flagMap = {
+          'US': '🇺🇸', 'CA': '🇨🇦', 'GB': '🇬🇧', 'DE': '🇩🇪', 'FR': '🇫🇷', 
+          'ES': '🇪🇸', 'IT': '🇮🇹', 'JP': '🇯🇵', 'CN': '🇨🇳', 'IN': '🇮🇳',
+          'BR': '🇧🇷', 'MX': '🇲🇽', 'AU': '🇦🇺', 'RU': '🇷🇺', 'KR': '🇰🇷',
+          'NL': '🇳🇱', 'SE': '🇸🇪', 'NO': '🇳🇴', 'DK': '🇩🇰', 'FI': '🇫🇮',
+          'PL': '🇵🇱', 'TR': '🇹🇷', 'AR': '🇦🇷', 'CL': '🇨🇱', 'CO': '🇨🇴'
+        };
+        return flagMap[countryCode] || '🌍';
+      }
+      
+      function displayWeeklyTrends(trends) {
+        const container = document.getElementById('weekly-trends-container');
+        if (trends.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-graph-up"></i>
+              <h4>No trend data yet</h4>
+              <p>Weekly trend data will appear here!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        const maxViews = Math.max(...trends.map(t => t.pageViews));
+        
+        container.innerHTML = `
+          <div class="row">
+            ${trends.map(trend => `
+              <div class="col">
+                <div class="text-center">
+                  <div class="mb-2">
+                    <div class="bg-primary" style="height: ${Math.max(20, (trend.pageViews / maxViews) * 100)}px; width: 100%; border-radius: 4px;"></div>
+                  </div>
+                  <small class="text-muted">${new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</small>
+                  <div class="fw-bold">${trend.pageViews}</div>
+                  <small class="text-muted">${trend.sessions} sessions</small>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      // Main display function that calls both
+      function displayAnalytics(data) {
+        displayLinkAnalytics(data);
+        displaySiteAnalytics(data);
+      }
+      
       // Tab switching handler
       document.addEventListener('shown.bs.tab', function (e) {
-        if (e.target.getAttribute('data-bs-target') === '#analytics-panel') {
+        const target = e.target.getAttribute('data-bs-target');
+        if (target === '#link-analytics-panel' || target === '#site-analytics-panel') {
           loadAnalytics();
         }
       });

@@ -56,3 +56,11 @@ function loadFooter() {
 
 // Load footer when DOM is ready
 document.addEventListener("DOMContentLoaded", loadFooter);
+
+// Load analytics script
+(function() {
+  const script = document.createElement('script');
+  script.src = 'js/analytics.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
