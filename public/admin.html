@@ -1369,41 +1369,101 @@
         }
         
         const maxViews = Math.max(...trends.map(t => t.pageViews), 1);
+        const chartHeight = 200;
+        const chartWidth = 800;
+        const padding = 40;
         
-        // Show last 7 days prominently
-        const recentTrends = trends.slice(-7);
+        // Create SVG line chart
+        const points = trends.map((trend, index) => {
+          const x = padding + (index * (chartWidth - 2 * padding)) / (trends.length - 1);
+          const y = chartHeight - padding - ((trend.pageViews / maxViews) * (chartHeight - 2 * padding));
+          return { x, y, data: trend };
+        });
+        
+        const pathData = points.map((point, index) => 
+          `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`
+        ).join(' ');
         
         container.innerHTML = `
-          <div class="mb-4">
-            <h6 class="mb-3">Last 7 Days</h6>
-            <div class="row">
-              ${recentTrends.map(trend => `
-                <div class="col">
-                  <div class="text-center">
-                    <div class="mb-2">
-                      <div class="bg-primary" style="height: ${Math.max(20, (trend.pageViews / maxViews) * 100)}px; width: 100%; border-radius: 4px;"></div>
-                    </div>
-                    <small class="text-muted">${trend.displayDate || new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</small>
-                    <div class="fw-bold">${trend.pageViews}</div>
-                    <small class="text-muted">${trend.sessions} sessions</small>
-                  </div>
-                </div>
+          <div class="line-chart-container" style="position: relative; background: var(--bg-color, white); border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px var(--shadow-color, rgba(0,0,0,0.1)); border: 1px solid var(--border-color, #e0e0e0);">
+            <svg width="${chartWidth}" height="${chartHeight}" style="overflow: visible;">
+              <!-- Grid lines -->
+              ${Array.from({length: 6}, (_, i) => {
+                const y = padding + (i * (chartHeight - 2 * padding)) / 5;
+                const value = Math.round(maxViews - (i * maxViews) / 5);
+                return `
+                  <line x1="${padding}" y1="${y}" x2="${chartWidth - padding}" y2="${y}" 
+                        stroke="var(--border-color, #f0f0f0)" stroke-width="1"/>
+                  <text x="${padding - 10}" y="${y + 4}" fill="var(--text-color, #666)" font-size="12" text-anchor="end">${value}</text>
+                `;
+              }).join('')}
+              
+              <!-- Line path -->
+              <path d="${pathData}" stroke="#007bff" stroke-width="3" fill="none"/>
+              
+              <!-- Data points -->
+              ${points.map(point => `
+                <circle cx="${point.x}" cy="${point.y}" r="4" fill="#007bff" stroke="white" stroke-width="2"
+                        data-date="${point.data.date}" 
+                        data-views="${point.data.pageViews}" 
+                        data-sessions="${point.data.sessions}"
+                        data-display-date="${point.data.displayDate || new Date(point.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}"
+                        style="cursor: pointer;"
+                        class="chart-point"/>
               `).join('')}
-            </div>
-          </div>
-          
-          <div>
-            <h6 class="mb-3">30-Day Overview</h6>
-            <div style="display: flex; gap: 2px; overflow-x: auto; padding: 10px 0;">
-              ${trends.map(trend => `
-                <div style="min-width: 15px; text-align: center;" title="${trend.displayDate || new Date(trend.date).toLocaleDateString()}: ${trend.pageViews} views">
-                  <div style="height: ${Math.max(5, (trend.pageViews / maxViews) * 30)}px; background: #007bff; border-radius: 2px; margin-bottom: 2px;"></div>
-                  <small style="font-size: 10px; color: #666;">${new Date(trend.date).getDate()}</small>
-                </div>
+              
+              <!-- X-axis labels (show every 5th day) -->
+              ${points.filter((_, i) => i % 5 === 0 || i === points.length - 1).map(point => `
+                <text x="${point.x}" y="${chartHeight - 10}" fill="var(--text-color, #666)" font-size="11" text-anchor="middle">
+                  ${point.data.displayDate || new Date(point.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </text>
               `).join('')}
-            </div>
+            </svg>
+            
+            <!-- Tooltip -->
+            <div id="chart-tooltip" style="
+              position: absolute; 
+              background: rgba(0,0,0,0.8); 
+              color: white; 
+              padding: 8px 12px; 
+              border-radius: 4px; 
+              font-size: 12px; 
+              pointer-events: none; 
+              opacity: 0; 
+              transition: opacity 0.2s;
+              z-index: 1000;
+            "></div>
           </div>
         `;
+        
+        // Add hover interactions
+        const chartPoints = container.querySelectorAll('.chart-point');
+        const tooltip = container.querySelector('#chart-tooltip');
+        
+        chartPoints.forEach(point => {
+          point.addEventListener('mouseenter', (e) => {
+            const date = e.target.getAttribute('data-display-date');
+            const views = e.target.getAttribute('data-views');
+            const sessions = e.target.getAttribute('data-sessions');
+            
+            tooltip.innerHTML = `
+              <div><strong>${date}</strong></div>
+              <div>${views} page views</div>
+              <div>${sessions} sessions</div>
+            `;
+            tooltip.style.opacity = '1';
+          });
+          
+          point.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            tooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+            tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+          });
+          
+          point.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+          });
+        });
       }
       
       // Main display function that calls both
