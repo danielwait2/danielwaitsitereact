@@ -23,24 +23,7 @@ function loadFooter() {
               </div>
             </div>
           </div>
-          <div class="row mt-3">
-            <div class="col-12">
-              <div class="text-center small text-muted">
-                <span class="me-3">
-                  <i class="bi bi-building me-1"></i>
-                  <a href="wait-works.html" class="text-decoration-none text-muted hover-primary">Wait Works LLC</a>
-                </span>
-                <span class="me-3">
-                  <i class="bi bi-list-ul me-1"></i>
-                  <a href="wait-list.html" class="text-decoration-none text-muted hover-primary">Wait List</a>
-                </span>
-                <span>
-                  <i class="bi bi-github me-1"></i>
-                  <a href="https://github.com/danielwait2" target="_blank" class="text-decoration-none text-muted hover-primary">GitHub</a>
-                </span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </footer>
       
