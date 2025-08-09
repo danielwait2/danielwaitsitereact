@@ -14,6 +14,21 @@ export default {
         });
       }
 
+      // Simple test endpoint
+      if (path === '/api/test-analytics') {
+        console.log('Test analytics endpoint hit');
+        return new Response(JSON.stringify({ 
+          success: true, 
+          message: 'Analytics Worker is responding',
+          timestamp: new Date().toISOString()
+        }), {
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
+
       // Handle API routes
       if (path.startsWith('/api/')) {
         console.log('API request:', path, request.method, request.url);
@@ -228,11 +243,13 @@ async function handleAPI(request, env, path) {
     }
 
     if (path === '/api/track-pageview' && request.method === 'POST') {
+      console.log('📊 TRACK PAGEVIEW ENDPOINT HIT');
       // Track page view with comprehensive data
       try {
         console.log('📊 Starting pageview tracking...');
         const body = await request.json();
-        console.log('📊 Request body:', JSON.stringify(body));
+        console.log('📊 Request body received');
+        console.log('📊 Request body length:', JSON.stringify(body).length);
         
         const { 
           page, 
