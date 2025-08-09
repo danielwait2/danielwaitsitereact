@@ -270,6 +270,14 @@ async function handleAPI(request, env, path) {
           });
         }
 
+        // Filter out admin pages from analytics
+        if (page.includes('/admin') || page.includes('admin.html') || page.includes('admin-login.html')) {
+          console.log('📊 Skipping admin page analytics for:', page);
+          return new Response(JSON.stringify({ success: true, skipped: 'admin page' }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
         console.log('📊 Processing pageview for:', { page, sessionId, timestamp });
 
         // Get geographic data from Cloudflare headers
