@@ -301,7 +301,7 @@
           <div class="links-grid">
             ${links.map(link => `
               <div class="link-item">
-                <a href="${link.url}" target="_blank" class="link-title">
+                <a href="${link.url}" target="_blank" class="link-title" onclick="trackClick(${link.id})">
                   ${link.title}
                 </a>
                 ${link.description ? `<div class="link-description">${link.description}</div>` : ''}
@@ -309,6 +309,21 @@
             `).join('')}
           </div>
         `;
+      }
+      
+      // Track link clicks
+      function trackClick(linkId) {
+        // Send click tracking data to API (non-blocking)
+        fetch('https://danielwaitwebsite.danielwait1216.workers.dev/api/track-click', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ linkId })
+        }).catch(error => {
+          // Silently fail if tracking doesn't work
+          console.log('Click tracking failed:', error);
+        });
       }
       
       // Load links on page load

@@ -175,6 +175,92 @@ async function handleAPI(request, env, path) {
       }
     }
 
+    if (path === '/api/track-click' && request.method === 'POST') {
+      // Track link click
+      const body = await request.json();
+      const { linkId } = body;
+
+      if (!linkId) {
+        return new Response(JSON.stringify({ error: 'Link ID is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        // Get current click data
+        const clickData = await env.WAIT_LIST_KV.get('click_analytics', { type: 'json' }) || {};
+        
+        // Initialize click count for this link if it doesn't exist
+        if (!clickData[linkId]) {
+          clickData[linkId] = {
+            count: 0,
+            firstClick: new Date().toISOString(),
+            lastClick: null,
+            dailyClicks: {}
+          };
+        }
+
+        // Increment click count
+        clickData[linkId].count += 1;
+        clickData[linkId].lastClick = new Date().toISOString();
+
+        // Track daily clicks
+        const today = new Date().toISOString().split('T')[0];
+        if (!clickData[linkId].dailyClicks[today]) {
+          clickData[linkId].dailyClicks[today] = 0;
+        }
+        clickData[linkId].dailyClicks[today] += 1;
+
+        // Save updated click data
+        await env.WAIT_LIST_KV.put('click_analytics', JSON.stringify(clickData));
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (kvError) {
+        console.error('KV click tracking error:', kvError);
+        return new Response(JSON.stringify({ error: 'Failed to track click' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    if (path === '/api/analytics' && request.method === 'GET') {
+      // Get analytics data
+      try {
+        const clickData = await env.WAIT_LIST_KV.get('click_analytics', { type: 'json' }) || {};
+        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+
+        // Combine click data with link information
+        const analytics = links.map(link => ({
+          id: link.id,
+          title: link.title,
+          url: link.url,
+          clicks: clickData[link.id]?.count || 0,
+          firstClick: clickData[link.id]?.firstClick || null,
+          lastClick: clickData[link.id]?.lastClick || null,
+          dailyClicks: clickData[link.id]?.dailyClicks || {}
+        }));
+
+        return new Response(JSON.stringify({
+          analytics,
+          totalClicks: Object.values(clickData).reduce((sum, data) => sum + (data.count || 0), 0),
+          totalLinks: links.length,
+          activeLinks: analytics.filter(link => link.clicks > 0).length
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (kvError) {
+        console.error('KV analytics error:', kvError);
+        return new Response(JSON.stringify({ error: 'Failed to get analytics' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     if (path.startsWith('/api/links/') && request.method === 'DELETE') {
       // Delete link
       const id = parseInt(path.split('/').pop());

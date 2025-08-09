@@ -352,9 +352,86 @@
          transition: all 0.3s ease;
        }
        
-       .btn-secondary:hover {
-         background: #5a6268;
-       }
+               .btn-secondary:hover {
+          background: #5a6268;
+        }
+        
+        .analytics-table {
+          background: white;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .analytics-row {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+          padding: 15px;
+          border-bottom: 1px solid #dee2e6;
+          align-items: center;
+          gap: 15px;
+        }
+        
+        .analytics-header {
+          background: #f8f9fa;
+          font-weight: bold;
+          color: #495057;
+        }
+        
+        .analytics-title {
+          color: #007bff;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        
+        .analytics-title:hover {
+          color: #0056b3;
+        }
+        
+        .click-count {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: #28a745;
+        }
+        
+        .click-rate {
+          font-size: 0.9rem;
+          color: #666;
+        }
+        
+        .last-click {
+          font-size: 0.85rem;
+          color: #666;
+        }
+        
+        .nav-tabs .nav-link {
+          color: #666;
+          border: none;
+          border-bottom: 3px solid transparent;
+          transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link.active {
+          color: #007bff;
+          border-bottom-color: #007bff;
+          background: none;
+        }
+        
+        .nav-tabs .nav-link:hover {
+          color: #007bff;
+          border-bottom-color: #007bff;
+        }
+        
+        @media (max-width: 768px) {
+          .analytics-row {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+          
+          .analytics-header {
+            display: none;
+          }
+        }
     </style>
   </head>
   <body class="d-flex flex-column h-100">
@@ -383,64 +460,119 @@
               <i class="bi bi-box-arrow-right"></i> Logout
             </button>
           </div>
-        </div>
-        
-        <!-- Stats Cards -->
-        <div class="stats-cards">
-          <div class="stat-card">
-            <div class="stat-number" id="total-links">0</div>
-            <div class="stat-label">Total Links</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="recent-links">0</div>
-            <div class="stat-label">Added This Week</div>
-          </div>
-        </div>
-        
-        <!-- Add New Link Panel -->
-        <div class="admin-panel">
-          <h3><i class="bi bi-plus-circle"></i> Add New Link</h3>
-          <form id="add-link-form" novalidate>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="link-title">Title *</label>
-                  <input type="text" class="form-control" id="link-title" required>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="link-url">URL *</label>
-                  <input type="text" class="form-control" id="link-url" required placeholder="https://example.com or any URL">
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="link-description">Description</label>
-                  <input type="text" class="form-control" id="link-description">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12 d-flex justify-content-end">
-                <button type="submit" class="btn btn-admin">
-                  <i class="bi bi-plus-circle"></i> Add Link
+          
+          <!-- Admin Tabs -->
+          <div class="admin-tabs mt-4">
+            <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="links-tab" data-bs-toggle="tab" data-bs-target="#links-panel" type="button" role="tab">
+                  <i class="bi bi-link-45deg"></i> Manage Links
                 </button>
-              </div>
-            </div>
-          </form>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics-panel" type="button" role="tab">
+                  <i class="bi bi-bar-chart"></i> Analytics
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
         
-        <!-- Links Management Table -->
-        <div class="links-table">
-          <div id="links-container">
-            <div class="empty-state">
-              <i class="bi bi-link-45deg"></i>
-              <h4>No links yet</h4>
-              <p>Add your first link using the form above!</p>
+                <!-- Tab Content -->
+        <div class="tab-content" id="adminTabContent">
+          <!-- Links Management Tab -->
+          <div class="tab-pane fade show active" id="links-panel" role="tabpanel">
+            <!-- Stats Cards -->
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-number" id="total-links">0</div>
+                <div class="stat-label">Total Links</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="recent-links">0</div>
+                <div class="stat-label">Added This Week</div>
+              </div>
+            </div>
+            
+            <!-- Add New Link Panel -->
+            <div class="admin-panel">
+              <h3><i class="bi bi-plus-circle"></i> Add New Link</h3>
+              <form id="add-link-form" novalidate>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="link-title">Title *</label>
+                      <input type="text" class="form-control" id="link-title" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="link-url">URL *</label>
+                      <input type="text" class="form-control" id="link-url" required placeholder="https://example.com or any URL">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="link-description">Description</label>
+                      <input type="text" class="form-control" id="link-description">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-admin">
+                      <i class="bi bi-plus-circle"></i> Add Link
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            
+            <!-- Links Management Table -->
+            <div class="links-table">
+              <div id="links-container">
+                <div class="empty-state">
+                  <i class="bi bi-link-45deg"></i>
+                  <h4>No links yet</h4>
+                  <p>Add your first link using the form above!</p>
+                </div>
+              </div>
             </div>
           </div>
-                 </div>
+          
+          <!-- Analytics Tab -->
+          <div class="tab-pane fade" id="analytics-panel" role="tabpanel">
+            <!-- Analytics Stats Cards -->
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-number" id="total-clicks">0</div>
+                <div class="stat-label">Total Clicks</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="active-links">0</div>
+                <div class="stat-label">Active Links</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="avg-clicks">0</div>
+                <div class="stat-label">Avg Clicks per Link</div>
+              </div>
+            </div>
+            
+            <!-- Analytics Table -->
+            <div class="admin-panel">
+              <h3><i class="bi bi-bar-chart"></i> Link Analytics</h3>
+              <div class="analytics-table">
+                <div id="analytics-container">
+                  <div class="empty-state">
+                    <i class="bi bi-bar-chart"></i>
+                    <h4>No analytics data yet</h4>
+                    <p>Analytics will appear here once people start clicking on your links!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
        </div>
      </div>
    </main>
@@ -732,6 +864,95 @@
           }
         }
       }
+      
+      // Load analytics data
+      async function loadAnalytics() {
+        try {
+          const response = await fetch('https://danielwaitwebsite.danielwait1216.workers.dev/api/analytics');
+          if (response.ok) {
+            const data = await response.json();
+            displayAnalytics(data);
+          } else {
+            console.error('Failed to load analytics');
+          }
+        } catch (error) {
+          console.error('Error loading analytics:', error);
+        }
+      }
+      
+      // Display analytics data
+      function displayAnalytics(data) {
+        // Update analytics stats
+        document.getElementById('total-clicks').textContent = data.totalClicks;
+        document.getElementById('active-links').textContent = data.activeLinks;
+        document.getElementById('avg-clicks').textContent = data.totalLinks > 0 ? 
+          Math.round(data.totalClicks / data.totalLinks * 10) / 10 : 0;
+        
+        // Display analytics table
+        const analyticsContainer = document.getElementById('analytics-container');
+        
+        if (data.analytics.length === 0) {
+          analyticsContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-bar-chart"></i>
+              <h4>No analytics data yet</h4>
+              <p>Analytics will appear here once people start clicking on your links!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Sort by click count (highest first)
+        const sortedAnalytics = data.analytics.sort((a, b) => b.clicks - a.clicks);
+        
+        analyticsContainer.innerHTML = `
+          <div class="analytics-row analytics-header">
+            <div>Link Title</div>
+            <div>Total Clicks</div>
+            <div>Today</div>
+            <div>This Week</div>
+            <div>Last Click</div>
+          </div>
+          ${sortedAnalytics.map(item => {
+            const today = new Date().toISOString().split('T')[0];
+            const todayClicks = item.dailyClicks[today] || 0;
+            
+            // Calculate this week's clicks
+            const weekClicks = Object.entries(item.dailyClicks)
+              .filter(([date]) => {
+                const clickDate = new Date(date);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return clickDate >= weekAgo;
+              })
+              .reduce((sum, [, clicks]) => sum + clicks, 0);
+            
+            const lastClick = item.lastClick ? 
+              new Date(item.lastClick).toLocaleDateString() : 'Never';
+            
+            return `
+              <div class="analytics-row">
+                <div>
+                  <a href="${item.url}" target="_blank" class="analytics-title">
+                    ${item.title}
+                  </a>
+                </div>
+                <div class="click-count">${item.clicks}</div>
+                <div class="click-rate">${todayClicks}</div>
+                <div class="click-rate">${weekClicks}</div>
+                <div class="last-click">${lastClick}</div>
+              </div>
+            `;
+          }).join('')}
+        `;
+      }
+      
+      // Tab switching handler
+      document.addEventListener('shown.bs.tab', function (e) {
+        if (e.target.getAttribute('data-bs-target') === '#analytics-panel') {
+          loadAnalytics();
+        }
+      });
       
       // Load links on page load
       document.addEventListener('DOMContentLoaded', () => {
