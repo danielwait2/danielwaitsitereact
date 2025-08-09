@@ -27,6 +27,43 @@
     <link rel="stylesheet" type="text/css" href="css/myStyles.css" />
     <script src="js/nav-component.js"></script>
     <style>
+      /* Dark mode variables for admin panel */
+      :root {
+        --admin-bg: #ffffff;
+        --admin-panel-bg: #ffffff;
+        --admin-text: #333333;
+        --admin-border: #e0e0e0;
+        --admin-shadow: rgba(0, 0, 0, 0.1);
+        --table-bg: #ffffff;
+        --table-hover: #f8f9fa;
+        --input-bg: #ffffff;
+        --loading-bg: rgba(255, 255, 255, 0.95);
+        --modal-bg: #ffffff;
+        --spinner-border: #f3f3f3;
+        --tab-bg: #ffffff;
+        --tab-border: #dee2e6;
+        --empty-state-bg: #f8f9fa;
+      }
+      
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --admin-bg: #121212;
+          --admin-panel-bg: #1e1e1e;
+          --admin-text: #ffffff;
+          --admin-border: #333333;
+          --admin-shadow: rgba(255, 255, 255, 0.1);
+          --table-bg: #1e1e1e;
+          --table-hover: #2a2a2a;
+          --input-bg: #2a2a2a;
+          --loading-bg: rgba(18, 18, 18, 0.95);
+          --modal-bg: #1e1e1e;
+          --spinner-border: #333333;
+          --tab-bg: #1e1e1e;
+          --tab-border: #333333;
+          --empty-state-bg: #2a2a2a;
+        }
+      }
+      
       .admin-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -56,11 +93,13 @@
       }
       
       .admin-panel {
-        background: #f8f9fa;
+        background: var(--admin-panel-bg);
         border: 2px solid #007bff;
         border-radius: 8px;
         padding: 25px;
         margin-bottom: 30px;
+        box-shadow: 0 2px 10px var(--admin-shadow);
+        color: var(--admin-text);
       }
       
       .admin-panel h3 {
@@ -84,9 +123,11 @@
       .form-control {
         width: 100%;
         padding: 10px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--admin-border);
         border-radius: 4px;
         font-size: 14px;
+        background: var(--input-bg);
+        color: var(--admin-text);
       }
       
       .btn-admin {
@@ -122,10 +163,11 @@
       }
       
       .links-table {
-        background: white;
+        background: var(--table-bg);
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px var(--admin-shadow);
+        color: var(--admin-text);
       }
       
       .table {
@@ -133,15 +175,19 @@
       }
       
       .table th {
-        background: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
+        background: var(--empty-state-bg);
+        border-bottom: 2px solid var(--admin-border);
         font-weight: bold;
-        color: #495057;
+        color: var(--admin-text);
       }
       
       .table td {
         vertical-align: middle;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--admin-border);
+      }
+      
+      .table tbody tr:hover {
+        background-color: var(--table-hover);
       }
       
       .link-title {
@@ -180,7 +226,9 @@
       .empty-state {
         text-align: center;
         padding: 60px 20px;
-        color: #666;
+        color: var(--admin-text);
+        background: var(--empty-state-bg);
+        border-radius: 8px;
       }
       
       .empty-state i {
@@ -202,11 +250,12 @@
       }
       
       .stat-card {
-        background: white;
+        background: var(--admin-panel-bg);
         padding: 20px;
         border-radius: 8px;
         text-align: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px var(--admin-shadow);
+        color: var(--admin-text);
       }
       
       .stat-number {
@@ -227,7 +276,7 @@
          left: 0;
          width: 100%;
          height: 100%;
-         background: white;
+         background: var(--loading-bg);
          display: flex;
          justify-content: center;
          align-items: center;
@@ -279,7 +328,7 @@
        }
        
        .edit-modal-content {
-         background: white;
+         background: var(--modal-bg);
          border-radius: 8px;
          padding: 0;
          max-width: 500px;
@@ -287,12 +336,13 @@
          max-height: 90vh;
          overflow-y: auto;
          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+         color: var(--admin-text);
        }
        
        .edit-modal-header {
-         background: #f8f9fa;
+         background: var(--empty-state-bg);
          padding: 20px;
-         border-bottom: 1px solid #dee2e6;
+         border-bottom: 1px solid var(--admin-border);
          display: flex;
          justify-content: space-between;
          align-items: center;
@@ -357,10 +407,11 @@
         }
         
         .analytics-table {
-          background: white;
+          background: var(--table-bg);
           border-radius: 8px;
           overflow: hidden;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 10px var(--admin-shadow);
+          color: var(--admin-text);
         }
         
         .analytics-row {
@@ -373,9 +424,9 @@
         }
         
         .analytics-header {
-          background: #f8f9fa;
+          background: var(--empty-state-bg);
           font-weight: bold;
-          color: #495057;
+          color: var(--admin-text);
         }
         
         .analytics-title {

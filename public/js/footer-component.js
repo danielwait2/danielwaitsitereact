@@ -3,7 +3,7 @@ function loadFooter() {
   const footerContainer = document.getElementById("footer-container");
   if (footerContainer) {
     footerContainer.innerHTML = `
-      <footer class="bg-white py-4 mt-auto border-top">
+      <footer class="py-4 mt-auto border-top" style="background-color: var(--bg-color);">
         <div class="container px-5">
           <div class="row align-items-center justify-content-between flex-column flex-sm-row">
             <div class="col-auto">
@@ -34,12 +34,12 @@ function loadFooter() {
         }
         
         footer {
-          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-          box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+          background: var(--bg-color) !important;
+          box-shadow: 0 -2px 10px var(--shadow-color);
         }
         
         footer .border-top {
-          border-color: rgba(0,0,0,0.1) !important;
+          border-color: var(--border-color) !important;
         }
         
         footer a {
