@@ -86,3 +86,11 @@ document.addEventListener("DOMContentLoaded", loadFooter);
   script.async = true;
   document.head.appendChild(script);
 })();
+
+// Load performance optimization script
+(function() {
+  const script = document.createElement('script');
+  script.src = 'js/performance.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();

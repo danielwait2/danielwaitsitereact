@@ -22,6 +22,19 @@
     <meta name="twitter:title" content="Wait Works LLC - Technology Consulting" />
     <meta name="twitter:description" content="Professional technology consulting and business solutions by Daniel Wait." />
     <title>Wait Works LLC - Technology Consulting & Business Solutions | Daniel Wait</title>
+    
+    <!-- Performance Optimizations -->
+    <link rel="preload" href="css/styles.css" as="style" />
+    <link rel="preload" href="css/myStyles.css" as="style" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://danielwait.com/wait-works.html" />
+    
+    <!-- Meta robots for better crawling -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/logo.png" />
     <!-- Custom Google font-->
@@ -45,11 +58,12 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": "LocalBusiness",
       "name": "Wait Works LLC",
       "description": "Professional technology consulting, software development, and business solutions",
       "url": "https://danielwait.com/wait-works.html",
       "logo": "https://danielwait.com/assets/logo.png",
+      "image": "https://danielwait.com/assets/logo.png",
       "founder": {
         "@type": "Person",
         "name": "Daniel Wait"
@@ -59,13 +73,45 @@
         "Software Development",
         "Business Solutions",
         "Web Applications",
-        "System Integration"
+        "System Integration",
+        "Data Analytics",
+        "Business Process Optimization"
       ],
       "areaServed": "Worldwide",
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "customer service",
-        "email": "daniel@waitworks.com"
+        "email": "daniel@waitworks.com",
+        "availableLanguage": "English"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "US",
+        "addressRegion": "UT"
+      },
+      "priceRange": "$$",
+      "openingHours": "Mo-Su 09:00-17:00",
+      "paymentAccepted": "Cash, Credit Card, Bank Transfer",
+      "currenciesAccepted": "USD"
+    }
+    </script>
+    
+    <!-- WebPage Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Wait Works LLC - Technology Consulting",
+      "description": "Professional technology consulting and business solutions by Daniel Wait",
+      "url": "https://danielwait.com/wait-works.html",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Daniel Wait",
+        "url": "https://danielwait.com"
+      },
+      "about": {
+        "@type": "Organization",
+        "name": "Wait Works LLC"
       }
     }
     </script>

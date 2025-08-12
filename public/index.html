@@ -19,6 +19,20 @@
     <meta name="twitter:title" content="Daniel Wait - Technology Innovator" />
     <meta name="twitter:description" content="Founder of Wait Works LLC. Technology solutions and innovation expertise." />
     <title>Daniel Wait - Technology Innovator & Information Systems Expert | Wait Works LLC</title>
+    
+    <!-- Performance Optimizations -->
+    <link rel="preload" href="css/styles.css" as="style" />
+    <link rel="preload" href="css/myStyles.css" as="style" />
+    <link rel="preload" href="assets/profile.png" as="image" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://danielwait.com/" />
+    
+    <!-- Meta robots for better crawling -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/logo.png" />
     <!-- Custom Google font-->
@@ -48,7 +62,8 @@
       "url": "https://danielwait.com",
       "image": "https://danielwait.com/assets/profile.png",
       "sameAs": [
-        "https://danielwait.com/wait-works.html"
+        "https://danielwait.com/wait-works.html",
+        "https://www.linkedin.com/in/danielwait2"
       ],
       "worksFor": {
         "@type": "Organization",
@@ -60,7 +75,60 @@
         "Information Systems",
         "Software Development",
         "Innovation",
-        "Business Consulting"
+        "Business Consulting",
+        "Web Development",
+        "Data Analytics",
+        "Business Process Optimization"
+      ],
+      "alumniOf": {
+        "@type": "EducationalOrganization",
+        "name": "Brigham Young University"
+      },
+      "award": [
+        "National AP Scholar",
+        "Eagle Scout"
+      ]
+    }
+    </script>
+    
+    <!-- Website Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Daniel Wait - Technology Innovator",
+      "url": "https://danielwait.com",
+      "description": "Technology consulting and innovation by Daniel Wait, founder of Wait Works LLC",
+      "publisher": {
+        "@type": "Person",
+        "name": "Daniel Wait"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://danielwait.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://danielwait.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "About Me",
+          "item": "https://danielwait.com/#about"
+        }
       ]
     }
     </script>
@@ -116,7 +184,7 @@
                 <div class="profile bg-gradient-primary-to-secondary">
                   <!-- TIP: For best results, use a photo with a transparent background like the demo example below-->
                   <!-- Watch a tutorial on how to do this on YouTube (link)-->
-                  <img class="profile-img" src="assets/profile.png" alt="Daniel Wait - Technology Innovator and Information Systems Expert" />
+                  <img class="profile-img" src="assets/profile.png" alt="Daniel Wait - Technology Innovator and Information Systems Expert" loading="lazy" width="400" height="400" />
                   <div class="dots-1">
                     <!-- SVG Dots-->
                     <svg
