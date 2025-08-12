@@ -33,16 +33,22 @@
       timeOnPreviousPage: timeOnPreviousPage
     };
     
-    // Send to API
-    fetch('https://danielwaitwebsite.danielwait1216.workers.dev/api/track-pageview', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    }).catch(error => {
-      console.warn('Analytics tracking failed:', error);
-    });
+           // Check if analytics consent is given
+       if (window.CookieBanner && !window.CookieBanner.hasAnalyticsConsent()) {
+         console.log('Analytics tracking disabled by user consent');
+         return;
+       }
+       
+       // Send to API
+       fetch('https://danielwaitwebsite.danielwait1216.workers.dev/api/track-pageview', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(data)
+       }).catch(error => {
+         console.warn('Analytics tracking failed:', error);
+       });
   }
   
   // Initialize tracking
