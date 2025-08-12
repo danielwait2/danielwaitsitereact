@@ -23,6 +23,9 @@ function loadFooter() {
                 <a class="text-decoration-none text-muted hover-primary" href="/privacy-policy.html">
                   <i class="bi bi-shield-check me-1"></i>Privacy
                 </a>
+                <a class="text-decoration-none text-muted hover-primary" href="/terms-of-service.html">
+                  <i class="bi bi-file-text me-1"></i>Terms
+                </a>
               </div>
             </div>
           </div>
@@ -72,6 +75,14 @@ document.addEventListener("DOMContentLoaded", loadFooter);
 (function() {
   const script = document.createElement('script');
   script.src = 'js/cookie-banner.js';
+  script.async = true;
+  document.head.appendChild(script);
+})();
+
+// Load accessibility script
+(function() {
+  const script = document.createElement('script');
+  script.src = 'js/accessibility.js';
   script.async = true;
   document.head.appendChild(script);
 })();
