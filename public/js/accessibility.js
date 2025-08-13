@@ -105,23 +105,25 @@
     toolbar.setAttribute('aria-label', 'Accessibility options');
     toolbar.style.cssText = `
       position: fixed;
-      top: 20px;
+      bottom: 20px;
       right: 20px;
       background: var(--bg-color, white);
       border: 1px solid var(--border-color, #e0e0e0);
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      z-index: 10000;
+      border-radius: 6px;
+      padding: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      z-index: 9999;
       display: flex;
-      gap: 8px;
+      gap: 4px;
       flex-wrap: wrap;
-      max-width: 300px;
+      max-width: 200px;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
     `;
     
     toolbar.innerHTML = `
-      <button id="accessibility-toggle" class="btn btn-sm btn-outline-primary" aria-label="Toggle accessibility menu">
-        <i class="bi bi-universal-access"></i>
+      <button id="accessibility-toggle" class="btn btn-sm btn-outline-secondary" aria-label="Toggle accessibility menu" style="font-size: 0.75rem; padding: 2px 6px;">
+        <i class="bi bi-universal-access" style="font-size: 0.8rem;"></i>
       </button>
       <div id="accessibility-menu" class="accessibility-menu" style="display: none; width: 100%; margin-top: 10px;">
         <div class="mb-2">
@@ -151,6 +153,15 @@
     `;
     
     document.body.appendChild(toolbar);
+    
+    // Hover effects for subtlety
+    toolbar.addEventListener('mouseenter', function() {
+      this.style.opacity = '1';
+    });
+    
+    toolbar.addEventListener('mouseleave', function() {
+      this.style.opacity = '0.7';
+    });
     
     // Toggle menu
     document.getElementById('accessibility-toggle').addEventListener('click', function() {
