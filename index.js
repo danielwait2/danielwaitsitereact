@@ -52,6 +52,14 @@ async function handleAPI(request, env, path) {
     'Access-Control-Max-Age': '86400',
   };
 
+  // Helper function to check if user has admin permissions
+  function hasAdminAccess(request) {
+    // For now, we'll check if the request is coming from the admin page
+    // In a more secure implementation, you'd validate the session token
+    const referer = request.headers.get('referer');
+    return referer && referer.includes('admin.html');
+  }
+
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -81,14 +89,19 @@ async function handleAPI(request, env, path) {
       const { username, password } = body;
 
       // Server-side credentials (in production, these should be environment variables)
-      const ADMIN_USERNAME = 'admin';
-      const ADMIN_PASSWORD = 'daniel2025';
+      const ADMIN_CREDENTIALS = {
+        'admin': { password: 'daniel2025', role: 'admin' },
+        'viewer': { password: 'viewer2025', role: 'viewer' }
+      };
 
-      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const user = ADMIN_CREDENTIALS[username];
+      
+      if (user && user.password === password) {
         return new Response(JSON.stringify({ 
           success: true, 
           message: 'Login successful',
-          sessionToken: 'valid-session-' + Date.now() // Simple session token
+          role: user.role,
+          sessionToken: 'valid-session-' + Date.now() + '-' + user.role // Include role in token
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
@@ -102,7 +115,14 @@ async function handleAPI(request, env, path) {
 
     console.log('Checking POST /api/links, path:', path, 'method:', request.method);
     if (path === '/api/links' && request.method === 'POST') {
-      // Add new link
+      // Add new link - Admin only
+      if (!hasAdminAccess(request)) {
+        return new Response(JSON.stringify({ error: 'Admin access required' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       const body = await request.json();
       const { title, url, description } = body;
 
@@ -113,8 +133,6 @@ async function handleAPI(request, env, path) {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
-
-      // No password check needed since admin page is already protected by login
 
       try {
         const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
@@ -142,7 +160,14 @@ async function handleAPI(request, env, path) {
     }
 
     if (path.startsWith('/api/links/') && request.method === 'PUT') {
-      // Update link
+      // Update link - Admin only
+      if (!hasAdminAccess(request)) {
+        return new Response(JSON.stringify({ error: 'Admin access required' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       const id = parseInt(path.split('/').pop());
       const body = await request.json();
       const { title, url, description } = body;
@@ -154,8 +179,6 @@ async function handleAPI(request, env, path) {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
-
-      // No password check needed since admin page is already protected by login
 
       try {
         const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
@@ -755,9 +778,15 @@ async function handleAPI(request, env, path) {
     }
 
     if (path.startsWith('/api/links/') && request.method === 'DELETE') {
-      // Delete link
+      // Delete link - Admin only
+      if (!hasAdminAccess(request)) {
+        return new Response(JSON.stringify({ error: 'Admin access required' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       const id = parseInt(path.split('/').pop());
-      // No password check needed since admin page is already protected by login
 
       try {
         const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
