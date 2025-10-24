@@ -4,123 +4,165 @@ export default {
     try {
       const url = new URL(request.url);
       const path = url.pathname;
-      
-      console.log('Worker request:', path, request.method);
+
+      console.log("Worker request:", path, request.method);
 
       // Test route
-      if (path === '/test') {
-        return new Response('Worker is working!', {
-          headers: { 'Content-Type': 'text/plain' }
+      if (path === "/test") {
+        return new Response("Worker is working!", {
+          headers: { "Content-Type": "text/plain" },
         });
       }
 
       // Simple test endpoint
-      if (path === '/api/test-analytics') {
-        console.log('Test analytics endpoint hit');
-        return new Response(JSON.stringify({ 
-          success: true, 
-          message: 'Analytics Worker is responding',
-          timestamp: new Date().toISOString()
-        }), {
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+      if (path === "/api/test-analytics") {
+        console.log("Test analytics endpoint hit");
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Analytics Worker is responding",
+            timestamp: new Date().toISOString(),
+          }),
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
           }
-        });
+        );
       }
 
       // Handle API routes
-      if (path.startsWith('/api/')) {
-        console.log('API request:', path, request.method, request.url);
+      if (path.startsWith("/api/")) {
+        console.log("API request:", path, request.method, request.url);
         return handleAPI(request, env, path);
       }
 
       // Serve static files
       return env.ASSETS.fetch(request);
     } catch (error) {
-      console.error('Worker error:', error);
-      return new Response('Worker error: ' + error.message, { status: 500 });
+      console.error("Worker error:", error);
+      return new Response("Worker error: " + error.message, { status: 500 });
     }
-  }
+  },
 };
 
 async function handleAPI(request, env, path) {
   const corsHeaders = {
-    'Access-Control-Allow-Origin': 'https://danielwait.com',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Max-Age': '86400',
+    "Access-Control-Allow-Origin": "https://danielwait.com",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Max-Age": "86400",
   };
 
   // Helper function to check if user has admin permissions
   function hasAdminAccess(request) {
-    // For now, we'll check if the request is coming from the admin page
-    // In a more secure implementation, you'd validate the session token
-    const referer = request.headers.get('referer');
-    return referer && referer.includes('admin.html');
+    // Check for admin session cookie
+    const cookieHeader = request.headers.get("cookie");
+    if (!cookieHeader) return false;
+
+    // Parse cookies
+    const cookies = {};
+    cookieHeader.split(";").forEach((cookie) => {
+      const [name, value] = cookie.trim().split("=");
+      cookies[name] = value;
+    });
+
+    // Check if admin is authenticated
+    return cookies.admin_authenticated === "true";
   }
 
   // Handle CORS preflight
-  if (request.method === 'OPTIONS') {
+  if (request.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('Checking GET /api/links, path:', path, 'method:', request.method);
-    if (path === '/api/links' && request.method === 'GET') {
+    console.log(
+      "Checking GET /api/links, path:",
+      path,
+      "method:",
+      request.method
+    );
+    if (path === "/api/links" && request.method === "GET") {
       // Get all links
       try {
-        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+        const links =
+          (await env.WAIT_LIST_KV.get("links", { type: "json" })) || [];
         return new Response(JSON.stringify(links), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (kvError) {
-        console.error('KV get error:', kvError);
+        console.error("KV get error:", kvError);
         return new Response(JSON.stringify([]), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
     }
 
-    console.log('Checking POST /api/login, path:', path, 'method:', request.method);
-    if (path === '/api/login' && request.method === 'POST') {
+    console.log(
+      "Checking POST /api/login, path:",
+      path,
+      "method:",
+      request.method
+    );
+    if (path === "/api/login" && request.method === "POST") {
       // Validate admin login with username and password
       const body = await request.json();
       const { username, password } = body;
 
       // Server-side credentials (in production, these should be environment variables)
       const ADMIN_CREDENTIALS = {
-        'admin': { password: 'daniel2025', role: 'admin' },
-        'viewer': { password: 'viewer2025', role: 'viewer' }
+        admin: { password: "daniel2025", role: "admin" },
+        viewer: { password: "viewer2025", role: "viewer" },
       };
 
       const user = ADMIN_CREDENTIALS[username];
-      
+
       if (user && user.password === password) {
-        return new Response(JSON.stringify({ 
-          success: true, 
-          message: 'Login successful',
-          role: user.role,
-          sessionToken: 'valid-session-' + Date.now() + '-' + user.role // Include role in token
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Login successful",
+            role: user.role,
+            sessionToken: "valid-session-" + Date.now() + "-" + user.role, // Include role in token
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+              "Set-Cookie":
+                "admin_authenticated=true; Path=/; Max-Age=86400; SameSite=Strict; Secure",
+            },
+          }
+        );
       } else {
-        return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ error: "Invalid username or password" }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
     }
 
-    console.log('Checking POST /api/links, path:', path, 'method:', request.method);
-    if (path === '/api/links' && request.method === 'POST') {
+    console.log(
+      "Checking POST /api/links, path:",
+      path,
+      "method:",
+      request.method
+    );
+    if (path === "/api/links" && request.method === "POST") {
       // Add new link - Admin only
       if (!hasAdminAccess(request)) {
-        return new Response(JSON.stringify({ error: 'Admin access required' }), {
-          status: 403,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ error: "Admin access required" }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
       const body = await request.json();
@@ -128,66 +170,77 @@ async function handleAPI(request, env, path) {
 
       // Validate required fields
       if (!title || !url) {
-        return new Response(JSON.stringify({ error: 'Title and URL are required' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ error: "Title and URL are required" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
       try {
-        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+        const links =
+          (await env.WAIT_LIST_KV.get("links", { type: "json" })) || [];
         const newLink = {
           id: Date.now(),
           title: title.trim(),
           url: url.trim(),
-          description: description ? description.trim() : '',
-          date: new Date().toISOString().split('T')[0]
+          description: description ? description.trim() : "",
+          date: new Date().toISOString().split("T")[0],
         };
 
         links.unshift(newLink);
-        await env.WAIT_LIST_KV.put('links', JSON.stringify(links));
+        await env.WAIT_LIST_KV.put("links", JSON.stringify(links));
 
         return new Response(JSON.stringify(newLink), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (kvError) {
-        console.error('KV operation error:', kvError);
-        return new Response(JSON.stringify({ error: 'Failed to save link' }), {
+        console.error("KV operation error:", kvError);
+        return new Response(JSON.stringify({ error: "Failed to save link" }), {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
     }
 
-    if (path.startsWith('/api/links/') && request.method === 'PUT') {
+    if (path.startsWith("/api/links/") && request.method === "PUT") {
       // Update link - Admin only
       if (!hasAdminAccess(request)) {
-        return new Response(JSON.stringify({ error: 'Admin access required' }), {
-          status: 403,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ error: "Admin access required" }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
-      const id = parseInt(path.split('/').pop());
+      const id = parseInt(path.split("/").pop());
       const body = await request.json();
       const { title, url, description } = body;
 
       // Validate required fields
       if (!title || !url) {
-        return new Response(JSON.stringify({ error: 'Title and URL are required' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ error: "Title and URL are required" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
       try {
-        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
-        const linkIndex = links.findIndex(link => link.id === id);
-        
+        const links =
+          (await env.WAIT_LIST_KV.get("links", { type: "json" })) || [];
+        const linkIndex = links.findIndex((link) => link.id === id);
+
         if (linkIndex === -1) {
-          return new Response(JSON.stringify({ error: 'Link not found' }), {
+          return new Response(JSON.stringify({ error: "Link not found" }), {
             status: 404,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
@@ -196,46 +249,51 @@ async function handleAPI(request, env, path) {
           ...links[linkIndex],
           title: title.trim(),
           url: url.trim(),
-          description: description ? description.trim() : ''
+          description: description ? description.trim() : "",
         };
 
-        await env.WAIT_LIST_KV.put('links', JSON.stringify(links));
+        await env.WAIT_LIST_KV.put("links", JSON.stringify(links));
 
         return new Response(JSON.stringify(links[linkIndex]), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (kvError) {
-        console.error('KV update error:', kvError);
-        return new Response(JSON.stringify({ error: 'Failed to update link' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        console.error("KV update error:", kvError);
+        return new Response(
+          JSON.stringify({ error: "Failed to update link" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
     }
 
-    if (path === '/api/track-click' && request.method === 'POST') {
+    if (path === "/api/track-click" && request.method === "POST") {
       // Track link click
       const body = await request.json();
       const { linkId } = body;
 
       if (!linkId) {
-        return new Response(JSON.stringify({ error: 'Link ID is required' }), {
+        return new Response(JSON.stringify({ error: "Link ID is required" }), {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       try {
         // Get current click data
-        const clickData = await env.WAIT_LIST_KV.get('click_analytics', { type: 'json' }) || {};
-        
+        const clickData =
+          (await env.WAIT_LIST_KV.get("click_analytics", { type: "json" })) ||
+          {};
+
         // Initialize click count for this link if it doesn't exist
         if (!clickData[linkId]) {
           clickData[linkId] = {
             count: 0,
             firstClick: new Date().toISOString(),
             lastClick: null,
-            dailyClicks: {}
+            dailyClicks: {},
           };
         }
 
@@ -244,86 +302,108 @@ async function handleAPI(request, env, path) {
         clickData[linkId].lastClick = new Date().toISOString();
 
         // Track daily clicks
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         if (!clickData[linkId].dailyClicks[today]) {
           clickData[linkId].dailyClicks[today] = 0;
         }
         clickData[linkId].dailyClicks[today] += 1;
 
         // Save updated click data
-        await env.WAIT_LIST_KV.put('click_analytics', JSON.stringify(clickData));
+        await env.WAIT_LIST_KV.put(
+          "click_analytics",
+          JSON.stringify(clickData)
+        );
 
         return new Response(JSON.stringify({ success: true }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (kvError) {
-        console.error('KV click tracking error:', kvError);
-        return new Response(JSON.stringify({ error: 'Failed to track click' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        console.error("KV click tracking error:", kvError);
+        return new Response(
+          JSON.stringify({ error: "Failed to track click" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
     }
 
-    if (path === '/api/track-pageview' && request.method === 'POST') {
-      console.log('📊 TRACK PAGEVIEW ENDPOINT HIT');
+    if (path === "/api/track-pageview" && request.method === "POST") {
+      console.log("📊 TRACK PAGEVIEW ENDPOINT HIT");
       // Track page view with comprehensive data
       try {
-        console.log('📊 Starting pageview tracking...');
+        console.log("📊 Starting pageview tracking...");
         const body = await request.json();
-        console.log('📊 Request body received');
-        console.log('📊 Request body length:', JSON.stringify(body).length);
-        
-        const { 
-          page, 
-          referrer, 
-          userAgent, 
-          screenWidth, 
-          screenHeight, 
+        console.log("📊 Request body received");
+        console.log("📊 Request body length:", JSON.stringify(body).length);
+
+        const {
+          page,
+          referrer,
+          userAgent,
+          screenWidth,
+          screenHeight,
           timestamp,
           sessionId,
-          timeOnPreviousPage 
+          timeOnPreviousPage,
         } = body;
 
         if (!page || !sessionId) {
-          console.error('❌ Missing required fields:', { page, sessionId });
-          return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
+          console.error("❌ Missing required fields:", { page, sessionId });
+          return new Response(
+            JSON.stringify({ error: "Missing required fields" }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
         }
 
         // Filter out admin pages from analytics
-        if (page.includes('/admin') || page.includes('admin.html') || page.includes('admin-login.html')) {
-          console.log('📊 Skipping admin page analytics for:', page);
-          return new Response(JSON.stringify({ success: true, skipped: 'admin page' }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
+        if (
+          page.includes("/admin") ||
+          page.includes("admin.html") ||
+          page.includes("admin-login.html")
+        ) {
+          console.log("📊 Skipping admin page analytics for:", page);
+          return new Response(
+            JSON.stringify({ success: true, skipped: "admin page" }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
         }
 
-        console.log('📊 Processing pageview for:', { page, sessionId, timestamp });
+        console.log("📊 Processing pageview for:", {
+          page,
+          sessionId,
+          timestamp,
+        });
 
         // Get geographic data from Cloudflare headers
-        const country = request.headers.get('CF-IPCountry') || 'Unknown';
-        const region = request.headers.get('CF-Region') || 'Unknown';
-        const city = request.headers.get('CF-IPCity') || 'Unknown';
-        const timezone = request.headers.get('CF-Timezone') || 'Unknown';
-        const latitude = request.headers.get('CF-IPLatitude') || null;
-        const longitude = request.headers.get('CF-IPLongitude') || null;
+        const country = request.headers.get("CF-IPCountry") || "Unknown";
+        const region = request.headers.get("CF-Region") || "Unknown";
+        const city = request.headers.get("CF-IPCity") || "Unknown";
+        const timezone = request.headers.get("CF-Timezone") || "Unknown";
+        const latitude = request.headers.get("CF-IPLatitude") || null;
+        const longitude = request.headers.get("CF-IPLongitude") || null;
 
         // Get current analytics data
-        console.log('📊 Fetching analytics data from KV...');
+        console.log("📊 Fetching analytics data from KV...");
         let analyticsData;
         try {
-          analyticsData = await env.WAIT_LIST_KV.get('site_analytics', { type: 'json' });
-          console.log('📊 KV fetch successful, data exists:', !!analyticsData);
+          analyticsData = await env.WAIT_LIST_KV.get("site_analytics", {
+            type: "json",
+          });
+          console.log("📊 KV fetch successful, data exists:", !!analyticsData);
         } catch (kvGetError) {
-          console.error('❌ KV get error:', kvGetError);
+          console.error("❌ KV get error:", kvGetError);
           analyticsData = null;
         }
-        
+
         if (!analyticsData) {
-          console.log('📊 Initializing new analytics data structure');
+          console.log("📊 Initializing new analytics data structure");
           analyticsData = {
             pageViews: {},
             sessions: {},
@@ -334,39 +414,47 @@ async function handleAPI(request, env, path) {
             regions: {},
             cities: {},
             dailyStats: {},
-            hourlyStats: {}
+            hourlyStats: {},
           };
         } else {
-          console.log('📊 Converting existing arrays back to Sets...');
+          console.log("📊 Converting existing arrays back to Sets...");
           // Convert arrays back to Sets for processing
-          Object.keys(analyticsData.dailyStats || {}).forEach(date => {
+          Object.keys(analyticsData.dailyStats || {}).forEach((date) => {
             if (Array.isArray(analyticsData.dailyStats[date].uniqueSessions)) {
-              analyticsData.dailyStats[date].uniqueSessions = new Set(analyticsData.dailyStats[date].uniqueSessions);
+              analyticsData.dailyStats[date].uniqueSessions = new Set(
+                analyticsData.dailyStats[date].uniqueSessions
+              );
             }
           });
-          
-          Object.keys(analyticsData.hourlyStats || {}).forEach(hour => {
+
+          Object.keys(analyticsData.hourlyStats || {}).forEach((hour) => {
             if (Array.isArray(analyticsData.hourlyStats[hour].sessions)) {
-              analyticsData.hourlyStats[hour].sessions = new Set(analyticsData.hourlyStats[hour].sessions);
+              analyticsData.hourlyStats[hour].sessions = new Set(
+                analyticsData.hourlyStats[hour].sessions
+              );
             }
           });
-          console.log('📊 Arrays converted back to Sets successfully');
+          console.log("📊 Arrays converted back to Sets successfully");
         }
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         const hour = new Date().getHours();
         const thisMonth = today.substring(0, 7); // YYYY-MM
-        console.log('📊 Date calculations:', { today, hour, thisMonth });
+        console.log("📊 Date calculations:", { today, hour, thisMonth });
 
         // Track page views
-        console.log('📊 Tracking page views for:', page);
+        console.log("📊 Tracking page views for:", page);
         if (!analyticsData.pageViews[page]) {
-          analyticsData.pageViews[page] = { count: 0, dailyViews: {}, firstView: timestamp };
+          analyticsData.pageViews[page] = {
+            count: 0,
+            dailyViews: {},
+            firstView: timestamp,
+          };
         }
         analyticsData.pageViews[page].count += 1;
         analyticsData.pageViews[page].lastView = timestamp;
-        console.log('📊 Page view updated:', analyticsData.pageViews[page]);
-        
+        console.log("📊 Page view updated:", analyticsData.pageViews[page]);
+
         if (!analyticsData.pageViews[page].dailyViews[today]) {
           analyticsData.pageViews[page].dailyViews[today] = 0;
         }
@@ -384,24 +472,28 @@ async function handleAPI(request, env, path) {
             region: region,
             city: city,
             timezone: timezone,
-            coordinates: latitude && longitude ? { lat: latitude, lng: longitude } : null
+            coordinates:
+              latitude && longitude ? { lat: latitude, lng: longitude } : null,
           };
         }
         analyticsData.sessions[sessionId].pages.push({
           page: page,
           timestamp: timestamp,
-          timeOnPage: timeOnPreviousPage
+          timeOnPage: timeOnPreviousPage,
         });
         analyticsData.sessions[sessionId].lastActivity = timestamp;
 
         // Track referrers
-        if (referrer && referrer !== '') {
+        if (referrer && referrer !== "") {
           const referrerDomain = new URL(referrer).hostname;
           if (!analyticsData.referrers[referrerDomain]) {
-            analyticsData.referrers[referrerDomain] = { count: 0, dailyReferrals: {} };
+            analyticsData.referrers[referrerDomain] = {
+              count: 0,
+              dailyReferrals: {},
+            };
           }
           analyticsData.referrers[referrerDomain].count += 1;
-          
+
           if (!analyticsData.referrers[referrerDomain].dailyReferrals[today]) {
             analyticsData.referrers[referrerDomain].dailyReferrals[today] = 0;
           }
@@ -411,7 +503,10 @@ async function handleAPI(request, env, path) {
         // Track device info
         const deviceKey = `${screenWidth}x${screenHeight}`;
         if (!analyticsData.devices[deviceKey]) {
-          analyticsData.devices[deviceKey] = { count: 0, type: getDeviceType(screenWidth) };
+          analyticsData.devices[deviceKey] = {
+            count: 0,
+            type: getDeviceType(screenWidth),
+          };
         }
         analyticsData.devices[deviceKey].count += 1;
 
@@ -421,26 +516,30 @@ async function handleAPI(request, env, path) {
           analyticsData.browsers[browser] = { count: 0, dailyUsers: {} };
         }
         analyticsData.browsers[browser].count += 1;
-        
+
         if (!analyticsData.browsers[browser].dailyUsers[today]) {
           analyticsData.browsers[browser].dailyUsers[today] = 0;
         }
         analyticsData.browsers[browser].dailyUsers[today] += 1;
 
         // Track geographic data
-        if (country && country !== 'Unknown') {
+        if (country && country !== "Unknown") {
           if (!analyticsData.countries[country]) {
-            analyticsData.countries[country] = { count: 0, dailyVisitors: {}, regions: {} };
+            analyticsData.countries[country] = {
+              count: 0,
+              dailyVisitors: {},
+              regions: {},
+            };
           }
           analyticsData.countries[country].count += 1;
-          
+
           if (!analyticsData.countries[country].dailyVisitors[today]) {
             analyticsData.countries[country].dailyVisitors[today] = 0;
           }
           analyticsData.countries[country].dailyVisitors[today] += 1;
 
           // Track regions within countries
-          if (region && region !== 'Unknown') {
+          if (region && region !== "Unknown") {
             if (!analyticsData.countries[country].regions[region]) {
               analyticsData.countries[country].regions[region] = 0;
             }
@@ -449,15 +548,15 @@ async function handleAPI(request, env, path) {
             // Track regions globally
             const regionKey = `${country}-${region}`;
             if (!analyticsData.regions[regionKey]) {
-              analyticsData.regions[regionKey] = { 
-                count: 0, 
-                country: country, 
+              analyticsData.regions[regionKey] = {
+                count: 0,
+                country: country,
                 region: region,
-                dailyVisitors: {} 
+                dailyVisitors: {},
               };
             }
             analyticsData.regions[regionKey].count += 1;
-            
+
             if (!analyticsData.regions[regionKey].dailyVisitors[today]) {
               analyticsData.regions[regionKey].dailyVisitors[today] = 0;
             }
@@ -466,19 +565,19 @@ async function handleAPI(request, env, path) {
         }
 
         // Track cities
-        if (city && city !== 'Unknown' && country && country !== 'Unknown') {
+        if (city && city !== "Unknown" && country && country !== "Unknown") {
           const cityKey = `${city}, ${country}`;
           if (!analyticsData.cities[cityKey]) {
-            analyticsData.cities[cityKey] = { 
-              count: 0, 
-              country: country, 
+            analyticsData.cities[cityKey] = {
+              count: 0,
+              country: country,
               region: region,
               city: city,
-              dailyVisitors: {} 
+              dailyVisitors: {},
             };
           }
           analyticsData.cities[cityKey].count += 1;
-          
+
           if (!analyticsData.cities[cityKey].dailyVisitors[today]) {
             analyticsData.cities[cityKey].dailyVisitors[today] = 0;
           }
@@ -486,159 +585,204 @@ async function handleAPI(request, env, path) {
         }
 
         // Track daily stats
-        console.log('📊 Tracking daily stats...');
+        console.log("📊 Tracking daily stats...");
         if (!analyticsData.dailyStats[today]) {
-          console.log('📊 Creating new daily stats for:', today);
-          analyticsData.dailyStats[today] = { 
-            pageViews: 0, 
+          console.log("📊 Creating new daily stats for:", today);
+          analyticsData.dailyStats[today] = {
+            pageViews: 0,
             uniqueSessions: new Set(),
-            bounceRate: 0 
+            bounceRate: 0,
           };
         }
         analyticsData.dailyStats[today].pageViews += 1;
         analyticsData.dailyStats[today].uniqueSessions.add(sessionId);
-        
-        console.log(`📊 Tracking pageview for ${today}: ${analyticsData.dailyStats[today].pageViews} views, ${analyticsData.dailyStats[today].uniqueSessions.size} sessions`);
-        console.log(`📅 Current analytics date range:`, Object.keys(analyticsData.dailyStats).sort());
+
+        console.log(
+          `📊 Tracking pageview for ${today}: ${analyticsData.dailyStats[today].pageViews} views, ${analyticsData.dailyStats[today].uniqueSessions.size} sessions`
+        );
+        console.log(
+          `📅 Current analytics date range:`,
+          Object.keys(analyticsData.dailyStats).sort()
+        );
 
         // Track hourly stats
-        const hourKey = `${today}-${hour.toString().padStart(2, '0')}`;
+        const hourKey = `${today}-${hour.toString().padStart(2, "0")}`;
         if (!analyticsData.hourlyStats[hourKey]) {
-          analyticsData.hourlyStats[hourKey] = { pageViews: 0, sessions: new Set() };
+          analyticsData.hourlyStats[hourKey] = {
+            pageViews: 0,
+            sessions: new Set(),
+          };
         }
         analyticsData.hourlyStats[hourKey].pageViews += 1;
         analyticsData.hourlyStats[hourKey].sessions.add(sessionId);
 
         // Convert Sets to arrays for storage
-        console.log('📊 Converting Sets to arrays for storage...');
+        console.log("📊 Converting Sets to arrays for storage...");
         try {
-          Object.keys(analyticsData.dailyStats).forEach(date => {
+          Object.keys(analyticsData.dailyStats).forEach((date) => {
             if (analyticsData.dailyStats[date].uniqueSessions instanceof Set) {
-              analyticsData.dailyStats[date].uniqueSessions = Array.from(analyticsData.dailyStats[date].uniqueSessions);
+              analyticsData.dailyStats[date].uniqueSessions = Array.from(
+                analyticsData.dailyStats[date].uniqueSessions
+              );
             }
           });
-          
-          Object.keys(analyticsData.hourlyStats).forEach(hour => {
+
+          Object.keys(analyticsData.hourlyStats).forEach((hour) => {
             if (analyticsData.hourlyStats[hour].sessions instanceof Set) {
-              analyticsData.hourlyStats[hour].sessions = Array.from(analyticsData.hourlyStats[hour].sessions);
+              analyticsData.hourlyStats[hour].sessions = Array.from(
+                analyticsData.hourlyStats[hour].sessions
+              );
             }
           });
-          console.log('📊 Sets converted successfully');
+          console.log("📊 Sets converted successfully");
         } catch (conversionError) {
-          console.error('❌ Set conversion error:', conversionError);
+          console.error("❌ Set conversion error:", conversionError);
           throw conversionError;
         }
 
-        console.log('📊 Saving analytics data to KV...');
-        await env.WAIT_LIST_KV.put('site_analytics', JSON.stringify(analyticsData));
-        console.log('📊 KV save successful');
+        console.log("📊 Saving analytics data to KV...");
+        await env.WAIT_LIST_KV.put(
+          "site_analytics",
+          JSON.stringify(analyticsData)
+        );
+        console.log("📊 KV save successful");
 
-        console.log('✅ Successfully saved analytics data');
+        console.log("✅ Successfully saved analytics data");
         return new Response(JSON.stringify({ success: true }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (error) {
-        console.error('❌ Analytics tracking error:', error);
-        console.error('❌ Error stack:', error.stack);
-        return new Response(JSON.stringify({ error: 'Failed to track pageview', details: error.message }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        console.error("❌ Analytics tracking error:", error);
+        console.error("❌ Error stack:", error.stack);
+        return new Response(
+          JSON.stringify({
+            error: "Failed to track pageview",
+            details: error.message,
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
     }
 
-    if (path === '/api/analytics' && request.method === 'GET') {
+    if (path === "/api/analytics" && request.method === "GET") {
       // Get comprehensive analytics data
       try {
-        const clickData = await env.WAIT_LIST_KV.get('click_analytics', { type: 'json' }) || {};
-        const siteData = await env.WAIT_LIST_KV.get('site_analytics', { type: 'json' }) || {};
-        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
+        const clickData =
+          (await env.WAIT_LIST_KV.get("click_analytics", { type: "json" })) ||
+          {};
+        const siteData =
+          (await env.WAIT_LIST_KV.get("site_analytics", { type: "json" })) ||
+          {};
+        const links =
+          (await env.WAIT_LIST_KV.get("links", { type: "json" })) || [];
 
         // Process link analytics
-        const linkAnalytics = links.map(link => ({
+        const linkAnalytics = links.map((link) => ({
           id: link.id,
           title: link.title,
           url: link.url,
           clicks: clickData[link.id]?.count || 0,
           firstClick: clickData[link.id]?.firstClick || null,
           lastClick: clickData[link.id]?.lastClick || null,
-          dailyClicks: clickData[link.id]?.dailyClicks || {}
+          dailyClicks: clickData[link.id]?.dailyClicks || {},
         }));
 
         // Process site analytics with rolling 30-day window
         const now = new Date();
-        const today = now.toISOString().split('T')[0];
-        
+        const today = now.toISOString().split("T")[0];
+
         // Generate last 30 days (including today)
-        const last30Days = Array.from({length: 30}, (_, i) => {
+        const last30Days = Array.from({ length: 30 }, (_, i) => {
           const date = new Date(now);
           date.setDate(date.getDate() - (29 - i)); // Show last 29 days + today
-          return date.toISOString().split('T')[0];
+          return date.toISOString().split("T")[0];
         });
 
         const pageViewsToday = siteData.dailyStats?.[today]?.pageViews || 0;
-        const totalPageViews = Object.values(siteData.pageViews || {}).reduce((sum, page) => sum + page.count, 0);
+        const totalPageViews = Object.values(siteData.pageViews || {}).reduce(
+          (sum, page) => sum + page.count,
+          0
+        );
         const totalSessions = Object.keys(siteData.sessions || {}).length;
-        
-        console.log(`Analytics query - Today: ${today}, Today's pageviews: ${pageViewsToday}`);
-        console.log(`Available daily stats dates:`, Object.keys(siteData.dailyStats || {}));
-        console.log(`Last 30 days range:`, last30Days.slice(0, 5), '...', last30Days.slice(-5));
-        console.log(`Recent trends data:`, JSON.stringify(last30Days.slice(-7).map(date => ({
-          date,
-          hasData: !!siteData.dailyStats?.[date],
-          pageViews: siteData.dailyStats?.[date]?.pageViews || 0
-        }))));
-        
+
+        console.log(
+          `Analytics query - Today: ${today}, Today's pageviews: ${pageViewsToday}`
+        );
+        console.log(
+          `Available daily stats dates:`,
+          Object.keys(siteData.dailyStats || {})
+        );
+        console.log(
+          `Last 30 days range:`,
+          last30Days.slice(0, 5),
+          "...",
+          last30Days.slice(-5)
+        );
+        console.log(
+          `Recent trends data:`,
+          JSON.stringify(
+            last30Days.slice(-7).map((date) => ({
+              date,
+              hasData: !!siteData.dailyStats?.[date],
+              pageViews: siteData.dailyStats?.[date]?.pageViews || 0,
+            }))
+          )
+        );
+
         // Helper function to get friendly page names
         function getPageDisplayName(url) {
           const pathMappings = {
-            '/': 'Home (About Me)',
-            '/index.html': 'Home (About Me)',
-            '/wait-list': 'Wait List',
-            '/wait-list.html': 'Wait List',
-            '/wait-works': 'Wait Works',
-            '/wait-works.html': 'Wait Works',
-            '/resume': 'Resume',
-            '/resume.html': 'Resume',
-            '/projects': 'Projects',
-            '/projects.html': 'Projects',
-            '/contact': 'Contact',
-            '/contact.html': 'Contact',
-            '/interesting-links': 'Interesting Links',
-            '/interesting-links.html': 'Interesting Links'
+            "/": "Home (About Me)",
+            "/index.html": "Home (About Me)",
+            "/wait-list": "Wait List",
+            "/wait-list.html": "Wait List",
+            "/wait-works": "Wait Works",
+            "/wait-works.html": "Wait Works",
+            "/resume": "Resume",
+            "/resume.html": "Resume",
+            "/projects": "Projects",
+            "/projects.html": "Projects",
+            "/contact": "Contact",
+            "/contact.html": "Contact",
+            "/interesting-links": "Interesting Links",
+            "/interesting-links.html": "Interesting Links",
           };
-          
+
           // Return mapped name if exists, otherwise format the URL nicely
           if (pathMappings[url]) {
             return pathMappings[url];
           }
-          
+
           // For unmapped URLs, clean them up
           let cleanUrl = url;
-          if (cleanUrl.endsWith('.html')) {
+          if (cleanUrl.endsWith(".html")) {
             cleanUrl = cleanUrl.slice(0, -5);
           }
-          if (cleanUrl.startsWith('/')) {
+          if (cleanUrl.startsWith("/")) {
             cleanUrl = cleanUrl.slice(1);
           }
-          
+
           // Convert dashes to spaces and title case
           if (cleanUrl) {
-            return cleanUrl.split('-').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ');
+            return cleanUrl
+              .split("-")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ");
           }
-          
+
           return url; // Fallback to original URL
         }
-        
+
         // Calculate popular pages
         const popularPages = Object.entries(siteData.pageViews || {})
           .map(([page, data]) => ({
             page: getPageDisplayName(page),
             url: page, // Keep original URL for reference
             views: data.count,
-            todayViews: data.dailyViews?.[today] || 0
+            todayViews: data.dailyViews?.[today] || 0,
           }))
           .sort((a, b) => b.views - a.views);
 
@@ -647,7 +791,7 @@ async function handleAPI(request, env, path) {
           .map(([domain, data]) => ({
             domain: domain,
             referrals: data.count,
-            todayReferrals: data.dailyReferrals?.[today] || 0
+            todayReferrals: data.dailyReferrals?.[today] || 0,
           }))
           .sort((a, b) => b.referrals - a.referrals);
 
@@ -656,7 +800,7 @@ async function handleAPI(request, env, path) {
           .map(([size, data]) => ({
             resolution: size,
             count: data.count,
-            type: data.type
+            type: data.type,
           }))
           .sort((a, b) => b.count - a.count);
 
@@ -664,7 +808,7 @@ async function handleAPI(request, env, path) {
           .map(([browser, data]) => ({
             browser: browser,
             count: data.count,
-            todayUsers: data.dailyUsers?.[today] || 0
+            todayUsers: data.dailyUsers?.[today] || 0,
           }))
           .sort((a, b) => b.count - a.count);
 
@@ -674,7 +818,7 @@ async function handleAPI(request, env, path) {
             country: country,
             count: data.count,
             todayVisitors: data.dailyVisitors?.[today] || 0,
-            regions: Object.entries(data.regions || {}).length
+            regions: Object.entries(data.regions || {}).length,
           }))
           .sort((a, b) => b.count - a.count);
 
@@ -683,7 +827,7 @@ async function handleAPI(request, env, path) {
             region: data.region,
             country: data.country,
             count: data.count,
-            todayVisitors: data.dailyVisitors?.[today] || 0
+            todayVisitors: data.dailyVisitors?.[today] || 0,
           }))
           .sort((a, b) => b.count - a.count);
 
@@ -693,125 +837,144 @@ async function handleAPI(request, env, path) {
             country: data.country,
             region: data.region,
             count: data.count,
-            todayVisitors: data.dailyVisitors?.[today] || 0
+            todayVisitors: data.dailyVisitors?.[today] || 0,
           }))
           .sort((a, b) => b.count - a.count);
 
         // 30-day trend data
-        const dailyTrends = last30Days.map(date => {
+        const dailyTrends = last30Days.map((date) => {
           const dayStats = siteData.dailyStats?.[date];
           let sessionCount = 0;
-          
+
           if (dayStats?.uniqueSessions) {
             if (Array.isArray(dayStats.uniqueSessions)) {
               sessionCount = dayStats.uniqueSessions.length;
             } else if (dayStats.uniqueSessions instanceof Set) {
               sessionCount = dayStats.uniqueSessions.size;
-            } else if (typeof dayStats.uniqueSessions === 'object') {
+            } else if (typeof dayStats.uniqueSessions === "object") {
               sessionCount = Object.keys(dayStats.uniqueSessions).length;
             }
           }
-          
+
           return {
             date: date,
             pageViews: dayStats?.pageViews || 0,
             sessions: sessionCount,
             // Add formatted date for display
-            displayDate: new Date(date).toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: 'numeric' 
-            })
+            displayDate: new Date(date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            }),
           };
         });
 
-        return new Response(JSON.stringify({
-          // Link analytics (existing)
-          linkAnalytics,
-          totalLinkClicks: Object.values(clickData).reduce((sum, data) => sum + (data.count || 0), 0),
-          totalLinks: links.length,
-          activeLinks: linkAnalytics.filter(link => link.clicks > 0).length,
-          
-          // Site analytics (new)
-          siteStats: {
-            totalPageViews: totalPageViews,
-            pageViewsToday: pageViewsToday,
-            totalSessions: totalSessions,
-            avgPagesPerSession: totalSessions > 0 ? Math.round((totalPageViews / totalSessions) * 10) / 10 : 0,
-            popularPages: popularPages.slice(0, 10),
-            topReferrers: topReferrers.slice(0, 10),
-            deviceStats: deviceStats.slice(0, 10),
-            browserStats: browserStats.slice(0, 5),
-            countryStats: countryStats.slice(0, 10),
-            regionStats: regionStats.slice(0, 10),
-            cityStats: cityStats.slice(0, 10),
-            dailyTrends: dailyTrends,
-            // Also provide weekly summary (last 7 days) for compatibility
-            weeklyTrends: dailyTrends.slice(-7)
+        return new Response(
+          JSON.stringify({
+            // Link analytics (existing)
+            linkAnalytics,
+            totalLinkClicks: Object.values(clickData).reduce(
+              (sum, data) => sum + (data.count || 0),
+              0
+            ),
+            totalLinks: links.length,
+            activeLinks: linkAnalytics.filter((link) => link.clicks > 0).length,
+
+            // Site analytics (new)
+            siteStats: {
+              totalPageViews: totalPageViews,
+              pageViewsToday: pageViewsToday,
+              totalSessions: totalSessions,
+              avgPagesPerSession:
+                totalSessions > 0
+                  ? Math.round((totalPageViews / totalSessions) * 10) / 10
+                  : 0,
+              popularPages: popularPages.slice(0, 10),
+              topReferrers: topReferrers.slice(0, 10),
+              deviceStats: deviceStats.slice(0, 10),
+              browserStats: browserStats.slice(0, 5),
+              countryStats: countryStats.slice(0, 10),
+              regionStats: regionStats.slice(0, 10),
+              cityStats: cityStats.slice(0, 10),
+              dailyTrends: dailyTrends,
+              // Also provide weekly summary (last 7 days) for compatibility
+              weeklyTrends: dailyTrends.slice(-7),
+            },
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
           }
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        );
       } catch (kvError) {
-        console.error('KV analytics error:', kvError);
-        return new Response(JSON.stringify({ error: 'Failed to get analytics' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        console.error("KV analytics error:", kvError);
+        return new Response(
+          JSON.stringify({ error: "Failed to get analytics" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
     }
 
     // Helper functions for analytics
     function getDeviceType(screenWidth) {
-      if (screenWidth < 768) return 'Mobile';
-      if (screenWidth < 1024) return 'Tablet';
-      return 'Desktop';
+      if (screenWidth < 768) return "Mobile";
+      if (screenWidth < 1024) return "Tablet";
+      return "Desktop";
     }
 
     function getBrowserFromUserAgent(userAgent) {
-      if (!userAgent) return 'Unknown';
-      if (userAgent.includes('Chrome')) return 'Chrome';
-      if (userAgent.includes('Firefox')) return 'Firefox';
-      if (userAgent.includes('Safari')) return 'Safari';
-      if (userAgent.includes('Edge')) return 'Edge';
-      if (userAgent.includes('Opera')) return 'Opera';
-      return 'Other';
+      if (!userAgent) return "Unknown";
+      if (userAgent.includes("Chrome")) return "Chrome";
+      if (userAgent.includes("Firefox")) return "Firefox";
+      if (userAgent.includes("Safari")) return "Safari";
+      if (userAgent.includes("Edge")) return "Edge";
+      if (userAgent.includes("Opera")) return "Opera";
+      return "Other";
     }
 
-    if (path.startsWith('/api/links/') && request.method === 'DELETE') {
+    if (path.startsWith("/api/links/") && request.method === "DELETE") {
       // Delete link - Admin only
       if (!hasAdminAccess(request)) {
-        return new Response(JSON.stringify({ error: 'Admin access required' }), {
-          status: 403,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ error: "Admin access required" }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
-      const id = parseInt(path.split('/').pop());
+      const id = parseInt(path.split("/").pop());
 
       try {
-        const links = await env.WAIT_LIST_KV.get('links', { type: 'json' }) || [];
-        const filteredLinks = links.filter(link => link.id !== id);
-        await env.WAIT_LIST_KV.put('links', JSON.stringify(filteredLinks));
+        const links =
+          (await env.WAIT_LIST_KV.get("links", { type: "json" })) || [];
+        const filteredLinks = links.filter((link) => link.id !== id);
+        await env.WAIT_LIST_KV.put("links", JSON.stringify(filteredLinks));
 
         return new Response(JSON.stringify({ success: true }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (kvError) {
-        console.error('KV delete error:', kvError);
-        return new Response(JSON.stringify({ error: 'Failed to delete link' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        console.error("KV delete error:", kvError);
+        return new Response(
+          JSON.stringify({ error: "Failed to delete link" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
     }
 
-    console.log('API route not found:', path);
-    return new Response('Not Found', { status: 404, headers: corsHeaders });
+    console.log("API route not found:", path);
+    return new Response("Not Found", { status: 404, headers: corsHeaders });
   } catch (error) {
-    console.error('API error:', error);
+    console.error("API error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 }
