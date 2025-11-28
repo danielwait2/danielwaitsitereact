@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply transition-colors duration-200;
+  }
+  
+  body {
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+    font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Modern selection styling */
+  ::selection {
+    @apply bg-black/20 text-black dark:bg-white/30 dark:text-white;
+  }
+
+  /* Modern scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500 dark:bg-gray-500;
+  }
+}
+
+@layer components {
+  /* Ultra-modern glassmorphism */
+  .glass {
+    @apply bg-white/10 dark:bg-gray-900/10 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 
+           shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)];
+  }
+
+  .glass-strong {
+    @apply bg-white/20 dark:bg-gray-900/20 backdrop-blur-2xl border border-white/30 dark:border-gray-700/40
+           shadow-[0_8px_32px_0_rgba(31,38,135,0.5)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.7)];
+  }
+
+  .glass-card {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/50 dark:border-gray-700/50
+           shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)]
+           hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.15)] dark:hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.7)]
+           transition-all duration-300;
+  }
+
+  /* Ultra-modern black and white */
+  .gradient-primary {
+    @apply bg-black dark:bg-white;
+  }
+
+  .gradient-text {
+    @apply text-black dark:text-white;
+    font-weight: 800;
+  }
+
+  .gradient-text-static {
+    @apply text-black dark:text-white;
+    font-weight: 800;
+  }
+
+  .gradient-bg-animated {
+    @apply bg-white dark:bg-gray-900;
+  }
+
+  /* Ultra-modern cards */
+  .card-modern {
+    @apply bg-white dark:bg-gray-800 rounded-3xl 
+           shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]
+           border border-gray-200 dark:border-gray-700
+           hover:shadow-[0_25px_80px_-15px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_25px_80px_-15px_rgba(255,255,255,0.1)]
+           hover:-translate-y-1
+           transition-all duration-500 ease-out;
+  }
+
+  .card-modern-hover {
+    @apply card-modern hover:scale-[1.02] hover:border-gray-400 dark:hover:border-gray-500;
+  }
+
+  /* Ultra-modern buttons */
+  .btn-modern {
+    @apply px-8 py-4 rounded-2xl font-semibold text-base
+           bg-black dark:bg-white
+           text-white dark:text-black
+           shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]
+           hover:shadow-[0_15px_40px_-5px_rgba(0,0,0,0.4)]
+           transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 
+           transition-all duration-300 ease-out;
+  }
+
+  .btn-modern-outline {
+    @apply px-8 py-4 rounded-2xl font-semibold text-base
+           border-2 border-black dark:border-white
+           text-black dark:text-white
+           bg-transparent
+           hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black
+           hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.2)]
+           transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 
+           transition-all duration-300 ease-out;
+  }
+
+  .btn-modern-ghost {
+    @apply px-6 py-3 rounded-xl font-medium
+           text-gray-700 dark:text-gray-300
+           hover:bg-gray-100 dark:hover:bg-gray-800
+           hover:text-black dark:hover:text-white
+           transform hover:scale-105 active:scale-95
+           transition-all duration-200 ease-out;
+  }
+
+  /* Ultra-modern input fields */
+  .input-modern {
+    @apply w-full px-4 py-3 rounded-xl
+           bg-white dark:bg-gray-800
+           border-2 border-gray-300 dark:border-gray-600
+           text-gray-900 dark:text-gray-100
+           placeholder-gray-400 dark:placeholder-gray-500
+           focus:border-black dark:focus:border-white
+           focus:ring-4 focus:ring-black/10 dark:focus:ring-white/10
+           focus:outline-none
+           transition-all duration-300 ease-out;
+  }
+
+  /* Ultra-modern badges */
+  .badge-modern {
+    @apply px-4 py-2 rounded-full text-sm font-semibold
+           bg-black dark:bg-white text-white dark:text-black
+           shadow-lg hover:shadow-xl
+           transform hover:scale-105
+           transition-all duration-300 ease-out;
+  }
+
+  /* Ultra-modern section dividers */
+  .section-divider {
+    @apply relative py-20 overflow-hidden;
+  }
+
+  .section-divider::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent;
+  }
+
+  /* Ultra-modern animations */
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes gradient-bg-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Ultra-modern text effects */
+  .text-glow {
+    @apply text-black dark:text-white;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Ultra-modern backdrop effects */
+  .backdrop-modern {
+    @apply backdrop-blur-2xl bg-white/70 dark:bg-gray-900/70;
+  }
+}
