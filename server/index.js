@@ -21,10 +21,17 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
+      
+      if (process.env.NODE_ENV === "production") {
+        // In production, only allow danielwait.com domains
+        if (allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
       } else {
-        callback(null, true); // Allow all origins in development, restrict in production
+        // In development, allow all origins
+        callback(null, true);
       }
     },
     credentials: true,
@@ -72,8 +79,13 @@ const db = require("./database");
 db.init()
   .then(() => {
     console.log("Database initialized");
-    app.listen(PORT, () => {
+    // Listen on all interfaces (0.0.0.0) so it can be accessed via domain
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(`Accessible at: http://localhost:${PORT}`);
+      if (process.env.NODE_ENV === "production") {
+        console.log(`Production domain: https://danielwait.com`);
+      }
     });
   })
   .catch((err) => {

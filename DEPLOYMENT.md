@@ -49,7 +49,7 @@ DB_PATH=./database.db
 JWT_SECRET=your-random-secret-key-here
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your-secure-password
-ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+ALLOWED_ORIGINS=https://danielwait.com,https://www.danielwait.com
 ```
 
 **Important:** Change `JWT_SECRET` to a random string and `ADMIN_PASSWORD` to a secure password!
@@ -90,7 +90,7 @@ If you want to use port 80/443, set up Nginx as a reverse proxy:
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com www.yourdomain.com;
+    server_name danielwait.com www.danielwait.com;
 
     location / {
         proxy_pass http://localhost:5001;
@@ -111,7 +111,7 @@ server {
 Use Let's Encrypt with Certbot:
 
 ```bash
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+sudo certbot --nginx -d danielwait.com -d www.danielwait.com
 ```
 
 ## File Structure
