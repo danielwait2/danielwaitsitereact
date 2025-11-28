@@ -43,7 +43,7 @@ cp .env.example .env
 Edit `.env` with your settings:
 
 ```env
-PORT=5002
+PORT=6000
 NODE_ENV=production
 DB_PATH=./database.db
 JWT_SECRET=your-random-secret-key-here

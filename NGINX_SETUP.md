@@ -70,7 +70,7 @@ server {
 
     # API routes - proxy to Node.js server
     location /api/ {
-        proxy_pass http://localhost:5002;
+        proxy_pass http://localhost:6000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -258,17 +258,17 @@ pm2 restart danielwait-site
 
 ## Troubleshooting
 
-### Port 5001 already in use:
+### Port 6000 already in use:
 ```bash
 # Find what's using the port
-sudo lsof -i :5001
+sudo lsof -i :6000
 # Kill the process or change PORT in .env
 ```
 
 ### Nginx 502 Bad Gateway:
 - Check if Node.js server is running: `pm2 status`
 - Check server logs: `pm2 logs danielwait-site`
-- Verify PORT in .env matches proxy_pass in Nginx config
+- Verify PORT in .env (should be 6000) matches proxy_pass in Nginx config (localhost:6000)
 
 ### SSL certificate issues:
 ```bash

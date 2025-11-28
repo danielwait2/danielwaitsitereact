@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 6000;
 
 // Middleware
 // CORS configuration - adjust origin for your domain
@@ -14,7 +14,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : (process.env.NODE_ENV === "production"
       ? ["https://danielwait.com", "https://www.danielwait.com"]
-      : ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5001"]);
+      : ["http://localhost:4000", "http://127.0.0.1:4000", "http://localhost:6000"]);
 
 app.use(
   cors({
