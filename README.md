@@ -11,14 +11,16 @@ A modern personal website built with React, Node.js, and SQLite.
 - **Analytics**: Comprehensive site and link analytics
 - **Wait List**: Curated collection of interesting links
 
-## Migration Notes
+## Deployment
 
-This application has been migrated from Cloudflare Workers to a traditional Node.js/Express setup:
+This application is designed for traditional server deployment (not Cloudflare Workers or GitHub Actions).
 
-- **API Endpoints**: All API calls now use relative paths (`/api/*`) that proxy to the Express backend
-- **Database**: Migrated from Cloudflare KV to SQLite
-- **Geographic Data**: Geographic analytics (country, region, city) are optional and can be enhanced with a geolocation service if needed
-- **Authentication**: Uses JWT tokens stored in HTTP-only cookies instead of Cloudflare Workers sessions
+- **Server**: Express.js Node.js server
+- **Database**: SQLite (file-based, no external database needed)
+- **Frontend**: React app served as static files from the Express server
+- **API**: REST API endpoints at `/api/*`
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
 ## Project Structure
 
@@ -144,15 +146,14 @@ The SQLite database includes the following tables:
 
 **Important**: Change these in production!
 
-## Deployment
+## Quick Deployment
 
-The application can be deployed to any Node.js hosting platform. Make sure to:
+1. **Install dependencies**: `npm run install-all`
+2. **Build React app**: `npm run build`
+3. **Configure environment**: Copy `.env.example` to `.env` and update values
+4. **Start server**: `NODE_ENV=production npm start`
 
-1. Set `NODE_ENV=production`
-2. Update `JWT_SECRET` to a secure random string
-3. Change default admin credentials
-4. Configure database path appropriately
-5. Build the React app before deployment
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## License
 
