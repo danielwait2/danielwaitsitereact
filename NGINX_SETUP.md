@@ -70,7 +70,7 @@ server {
 
     # API routes - proxy to Node.js server
     location /api/ {
-        proxy_pass http://localhost:5001;
+        proxy_pass http://localhost:5002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
