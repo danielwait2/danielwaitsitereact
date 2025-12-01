@@ -65,3 +65,4 @@ echo ""
 echo "Check PM2 status: pm2 status"
 echo "View logs: pm2 logs danielwait-site"
 
+
