@@ -23,7 +23,7 @@ function AdminPanel() {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (authenticated && activeTab === 'links') {
