@@ -18,13 +18,13 @@ jobs:
         node-version: '20'
 
     - name: Install dependencies
-      run: cd danielwaitsite/client && npm ci
+      run: cd client && npm ci
 
     - name: Build React app
-      run: cd danielwaitsite/client && npm run build
+      run: cd client && npm run build
 
     - name: Deploy to Cloudflare Pages
-      run: npx wrangler pages deploy danielwaitsite/client/build --project-name=danielwaitsitereact --commit-dirty=true
+      run: npx wrangler pages deploy client/build --project-name=danielwaitsitereact --commit-dirty=true
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
