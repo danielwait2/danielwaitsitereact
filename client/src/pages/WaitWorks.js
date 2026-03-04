@@ -31,7 +31,7 @@ function WaitWorks() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20">
+    <div className="min-h-screen bg-white dark:bg-gray-900 py-20">
       <div ref={ref} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -70,7 +70,7 @@ function WaitWorks() {
                 transition={{ delay: 0.3 + index * 0.1 }}
                 className="flex items-center space-x-3"
               >
-                <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                <div className="w-2 h-2 rounded-full bg-black dark:bg-white"></div>
                 <span>{item}</span>
               </motion.li>
             ))}

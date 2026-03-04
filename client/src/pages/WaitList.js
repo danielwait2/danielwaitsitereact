@@ -36,18 +36,18 @@ function WaitList() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full"
+          className="w-16 h-16 border-4 border-black dark:border-white border-t-transparent rounded-full"
         />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20">
+    <div className="min-h-screen bg-white dark:bg-gray-900 py-20">
       <div ref={ref} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -102,7 +102,7 @@ function WaitList() {
                   </span>
                 </div>
                 
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-purple-400 transition-colors">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                   {link.title}
                 </h3>
                 
@@ -112,7 +112,7 @@ function WaitList() {
                   </p>
                 )}
                 
-                <div className="flex items-center text-sm text-blue-600 dark:text-purple-400 font-medium">
+                <div className="flex items-center text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <span>Visit Link</span>
                   <FiExternalLink className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>

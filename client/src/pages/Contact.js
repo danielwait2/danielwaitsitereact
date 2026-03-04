@@ -7,7 +7,7 @@ function Contact() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20 flex items-center">
+    <div className="min-h-screen bg-white dark:bg-gray-900 py-20 flex items-center">
       <div ref={ref} className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -53,7 +53,7 @@ function Contact() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.2, y: -5 }}
               whileTap={{ scale: 0.9 }}
-              className="w-14 h-14 rounded-full bg-blue-600 dark:bg-blue-500 flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow"
+              className="w-14 h-14 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shadow-lg hover:shadow-xl transition-shadow"
             >
               <FiLinkedin className="w-7 h-7" />
             </motion.a>
@@ -63,7 +63,7 @@ function Contact() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.2, y: -5 }}
               whileTap={{ scale: 0.9 }}
-              className="w-14 h-14 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow"
+              className="w-14 h-14 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shadow-lg hover:shadow-xl transition-shadow"
             >
               <FiYoutube className="w-7 h-7" />
             </motion.a>
